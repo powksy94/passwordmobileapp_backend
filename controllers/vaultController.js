@@ -17,12 +17,13 @@ export const getAll = async (req, res) => {
     res.json(
       r.rows.map((row) => ({
         ...row,
-        title: row.title.toString("base64"),
-        login: row.login?.toString("base64"),
-        password: row.password.toString("base64"),
-        notes: row.notes?.toString("base64"),
-        iv: row.iv.toString("base64"),
-        tag: row.tag.toString("base64"),
+      title: row.title?.toString("base64"),
+      login: row.login?.toString("base64"),
+      password: row.password?.toString("base64"),
+      notes: row.notes?.toString("base64"),
+      iv: row.iv?.toString("base64"),
+      tag: row.tag?.toString("base64")
+
       }))
     );
   } catch (e) {
