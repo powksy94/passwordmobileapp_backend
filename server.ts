@@ -1,18 +1,23 @@
 import app from "./app.js";
 import { connectMongo } from "./src/config/mongo";
 import { pool } from "./src/config/postgres";
-import { PORT } from "./src/config/env";
+import { NODE_ENV, PORT } from "./src/config/env";
+import logger from "./src/config/logger";
 
-(async () => {
+const starServer = async () => {
   try {
     await connectMongo();
+    logger.info("✅ MongoDB connected");
+
     await pool.connect();
+    logger.info("✅ PostgreSQL connected");
 
-    console.log("✅ PostgreSQL connected");
-
-    app.listen(PORT || 5000, () => console.log(`Server running on port ${PORT || 5000}`));
+    app.listen(PORT, () => {
+      logger.info(`Server running on port ${PORT} in ${NODE_ENV} mode`);
+    });
   } catch (err) {
-    console.error("Server failed",err);
-    process.exit(1);
+    logger.error("Server bootstrap failed", err);
   }
-})();
+};
+
+void starServer();

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import * as UsersRepo from "../db/postgres/users.repo";
-import * as AuditRepo from "../db/postgres/audit.repos";
+import * as AuditRepo from "../db/postgres/audit.repo";
 
 export const getAllUsers = async (req: Request, res: Response) => {
   const users = await UsersRepo.getAllUsers();
