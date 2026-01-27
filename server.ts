@@ -1,7 +1,7 @@
 import app from "./app.js";
-import { connectMongo } from "./config/mongo.ts";
-import { pool } from "./config/postgres.ts";
-import { PORT } from "./config/env.ts";
+import { connectMongo } from "./src/config/mongo.ts";
+import { pool } from "./src/config/postgres.ts";
+import { PORT } from "./src/config/env.ts";
 
 (async () => {
   try {

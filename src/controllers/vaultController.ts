@@ -11,7 +11,6 @@ export const addVaultItem = async (req: Request, res: Response) => {
     encryptedValue,
     iv,
     tag,
-    label
   });
 
   res.status(201).json(vaultItem);

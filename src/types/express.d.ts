@@ -1,10 +1,11 @@
-import { Request } from "express";
+import type { User } from "../db/postgres/users.repo";
 
-declare module "express-serve-static-core" {
-  interface Request {
-    user?: {
-      id: string;
-      role?: string; // facultatif si tu ajoutes le rôle
-    };
+declare global {
+  namespace Express {
+    interface Request {
+      user?: Pick<User, "id" | "role">;
+    }
   }
 }
+
+export {};
