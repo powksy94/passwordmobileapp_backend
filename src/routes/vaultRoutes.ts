@@ -5,8 +5,9 @@ import { authMiddleware } from "../middleware/auth.middleware";
 const router = Router();
 
 router.use(authMiddleware);
-router.post("/", addVaultItem);
-router.get("/", getVault);
-router.delete("/:id", deleteVaultItem);
+router.post("/", authMiddleware, addVaultItem);
+router.get("/", authMiddleware, getVault);
+router.delete("/:id", authMiddleware, deleteVaultItem);
+
 
 export default router;

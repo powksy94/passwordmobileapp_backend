@@ -32,3 +32,7 @@ export const getAllUsers = async (): Promise<User[]> => {
 export const deleteUser = async (id: string): Promise<void> => {
   await pool.query("DELETE FROM users WHERE id = $1", [id]);
 };
+
+export const updateUserRole = async (userId: string, role: "admin" | "user"): Promise<void> => {
+  await pool.query("UPDATE users SET role = $1 WHERE id = $2", [role, userId]);
+};

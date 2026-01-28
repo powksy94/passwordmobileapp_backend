@@ -1,22 +1,13 @@
-import { Request, Response, NextFunction, RequestHandler } from "express";
-import * as UsersRepo from "../db/postgres/users.repo";
+import { Request, Response, NextFunction } from "express";
 
-export const roleMiddleware = (role: string): RequestHandler => {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    const userId = req.user?.id;
-
-    if (!userId) {
-      res.status(401).json({ error: "Unauthorized" });
-      return;
-    }
-
-    const user = await UsersRepo.getUserById(userId);
-
-    if (!user || user.role !== role) {
+export const roleMiddleware =
+  (requiredRole: "admin" | "user") =>
+  (req: Request, res: Response, next: NextFunction): void => {
+    // authMiddleware garantit req.user
+    if (req.user?.role !== requiredRole) {
       res.status(403).json({ error: "Forbidden" });
       return;
     }
 
     next();
   };
-};
