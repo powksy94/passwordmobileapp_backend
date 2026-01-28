@@ -4,6 +4,7 @@ import bcrypt from "bcrypt"; // ✅ correction
 import * as jwt from "jsonwebtoken"; // ✅ TypeScript ESM compatible
 import { JWT_SECRET, JWT_EXPIRES_IN } from "../config/env";
 import type { SignOptions } from "jsonwebtoken";
+import logger from "../config/logger";
 
 interface AuthRequestBody {
   email: string;
@@ -51,7 +52,7 @@ export const login = async (
 
     res.status(200).json({ token });
   } catch (error) {
-    console.error("Login error:", error);
+    logger.error("Login error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };

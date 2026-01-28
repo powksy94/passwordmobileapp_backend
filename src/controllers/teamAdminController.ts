@@ -1,19 +1,30 @@
-// controllers/teamAdminController.js
-import authorize from "../middleware/auth.js"; // ← .js obligatoire
-import pool from "../db/db.js";
+// src/controllers/teamAdminController.ts
+import { Request, Response } from "express";
+import { pool } from "../config/postgres";
+import logger from "../config/logger";
 
-export const addMember = async (req, res) => {
+// Ajout d'un membre avec rôle "user"
+export const addMember = async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
 
-    await pool.query(
+    if (!email) {
+      return res.status(400).json({ message: "Email is required." });
+    }
+
+    const result = await pool.query(
       "UPDATE users SET role='user' WHERE email=$1 AND role='team_admin'",
       [email]
     );
 
-    res.sendStatus(200);
-  } catch (e) {
-    console.error("teamAdminController error:", e);
-    res.sendStatus(500);
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: "No team admin found with this email." });
+    }
+
+    logger.info("Team member added", { email });
+    res.status(200).json({ message: "Member role updated successfully." });
+  } catch (error) {
+    logger.error("Failed to add team member", { error });
+    res.status(500).json({ message: "Failed to add team member." });
   }
 };
