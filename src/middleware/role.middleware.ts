@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 
 export const roleMiddleware =
-  (requiredRole: "admin" | "user") =>
+  (requiredRole: "admin" | "user" | "team_admin") =>
   (req: Request, res: Response, next: NextFunction): void => {
     // authMiddleware garantit req.user
     if (req.user?.role !== requiredRole) {
