@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import * as VaultRepo from "../db/mongo/vault.repo.js";
-import { encryptValue, decryptValue } from "../config/crypto.js";
 import logger from "../config/logger";
 
 // ---------------------
@@ -12,32 +11,28 @@ export const addVaultItem = async (req: Request, res: Response): Promise<void> =
     return;
   }
 
-  const { value, label } = req.body;
+  const { title, login, password, notes, icon } = req.body;
 
-  if (!value || !label) {
-    logger.warn("Add vault item failed: missing value or label", { userId: req.user.id });
-    res.status(400).json({ message: "Value and label are required." });
+  if (!title || !password) {
+    res.status(400).json({ message: "Title and password are required." });
     return;
   }
 
   try {
-    const { encryptedValue, iv, tag } = encryptValue(value);
 
     const vaultItem = await VaultRepo.createVault({
       userId: req.user.id,
-      label,
-      encryptedValue,
-      iv,
-      tag,
+      title,
+      login: login ?? "",
+      password,
+      notes: notes ?? "",
+      icon: icon ?? "lock",
     });
 
-    logger.info("Vault item added successfully", { userId: req.user.id, vaultId: vaultItem._id });
 
     res.status(201).json({
       id: vaultItem._id,
-      label: vaultItem.label,
-      createdAt: vaultItem.createdAt,
-    });
+      message: "Item added"});
   } catch (error) {
     logger.error("Failed to add vault item", { error, userId: req.user.id });
     res.status(500).json({ message: "Failed to add vault item." });
@@ -58,8 +53,11 @@ export const getVault = async (req: Request, res: Response): Promise<void> => {
 
     const response = items.map(item => ({
       id: item._id,
-      label: item.label,
-      value: decryptValue(item.encryptedValue, item.iv, item.tag),
+      title: item.title,
+      login: item.login,
+      password: item.password,
+      notes: item.notes,
+      icon: item.icon,
       createdAt: item.createdAt,
     }));
 

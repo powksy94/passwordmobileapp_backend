@@ -11,10 +11,11 @@ export const getUserByEmail = async (email: string): Promise<User | null> => {
 export const createUser = async (
   email: string,
   password: string,
+  salt: string,
 ): Promise<User> => {
   const res = await pool.query<User>(
-    "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING *",
-    [email, password],
+    "INSERT INTO users (email, password, salt) VALUES ($1, $2, $3) RETURNING *",
+    [email, password, salt],
   );
   return res.rows[0];
 };

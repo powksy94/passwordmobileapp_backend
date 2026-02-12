@@ -2,10 +2,11 @@ import mongoose, { Schema, Document} from "mongoose";
 
 export interface IVault extends Document {
   userId: string;
-  label: string;
-  encryptedValue: string;
-  iv: string,
-  tag: string;
+  title: string;
+  login: string;
+  password: string;
+  notes: string;
+  icon: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -13,10 +14,11 @@ export interface IVault extends Document {
 const VaultSchema = new Schema<IVault>(
   {
     userId: { type: String, required: true },
-    label: { type: String, required: true },
-    encryptedValue: { type: String, required: true },
-    iv: { type: String, required: true },
-    tag: { type: String, required: true },
+    title: { type: String, required: true },
+    login: { type: String, default: ""},
+    password: { type: String, required: true},
+    notes: { type: String, default: ""},
+    icon: { type: String, default: "lock"}
   },
   {
     timestamps: true, 

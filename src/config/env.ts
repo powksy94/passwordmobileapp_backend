@@ -17,4 +17,5 @@ export const JWT_SECRET = process.env.JWT_SECRET ?? "";
 export const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN ?? "1h";
 
 export const CRYPTO_MASTER_KEY = process.env.CRYPTO_MASTER_KEY ?? "";
+export const CORS_ORIGIN = process.env.CORS_ORIGIN ?? "*";
 
