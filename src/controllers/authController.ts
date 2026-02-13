@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import * as UsersRepo from "../db/postgres/users.repo";
 import bcrypt from "bcrypt"; // ✅ correction
-import * as jwt from "jsonwebtoken"; // ✅ TypeScript ESM compatible
+import jwt from "jsonwebtoken";
 import { JWT_SECRET, JWT_EXPIRES_IN } from "../config/env";
 import type { SignOptions } from "jsonwebtoken";
 import logger from "../config/logger";
