@@ -27,7 +27,7 @@ const starServer = async () => {
       logger.info(`Server running on port ${PORT} in ${NODE_ENV} mode`);
     });
   } catch (err) {
-    logger.error("Server bootstrap failed", err);
+    logger.error("Server bootstrap failed: " + (err instanceof Error ? err.message : String(err)));
   }
 };
 
