@@ -9,6 +9,7 @@ const starServer = async () => {
     await connectMongo();
     logger.info("✅ MongoDB connected");
 
+    console.log("DATABASE_URL defined:", !!process.env.DATABASE_URL, "length:", process.env.DATABASE_URL?.length ?? 0);
     await pool.connect();
     logger.info("✅ PostgreSQL connected");
 
