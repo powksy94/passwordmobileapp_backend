@@ -12,6 +12,17 @@ const starServer = async () => {
     await pool.connect();
     logger.info("✅ PostgreSQL connected");
 
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password TEXT NOT NULL,
+        role VARCHAR(20) DEFAULT 'user',
+        salt TEXT
+      )
+    `);
+    logger.info("✅ Users table ready");
+
     app.listen(PORT, () => {
       logger.info(`Server running on port ${PORT} in ${NODE_ENV} mode`);
     });
