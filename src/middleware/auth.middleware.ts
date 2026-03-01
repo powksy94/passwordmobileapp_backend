@@ -4,7 +4,7 @@ import { JWT_SECRET } from "../config/env";
 
 interface JwtPayload {
   id: string;
-  role: "admin" | "user";
+  role: "admin" | "user" | "team_admin";
   iat: number;
   exp: number;
 }

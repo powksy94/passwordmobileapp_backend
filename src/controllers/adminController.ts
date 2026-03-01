@@ -6,7 +6,7 @@ import logger from "../config/logger";
 // ---------------------
 // GET ALL USERS
 // ---------------------
-export const getAllUsers = async (req: Request, res: Response) => {
+export const getAllUsers = async (_req: Request, res: Response) => {
   try {
     const users = await UsersRepo.getAllUsers();
     res.json(users);
@@ -53,7 +53,7 @@ export const updateRole = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "userId and role are required." });
     }
 
-    if (!["admin", "user"].includes(role)) {
+    if (!["admin", "user", "team_admin"].includes(role)) {
       return res.status(400).json({ message: "Invalid role." });
     }
 

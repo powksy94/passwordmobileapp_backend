@@ -34,6 +34,13 @@ export const deleteUser = async (id: string): Promise<void> => {
   await pool.query("DELETE FROM users WHERE id = $1", [id]);
 };
 
-export const updateUserRole = async (userId: string, role: "admin" | "user"): Promise<void> => {
+export const getAdminCount = async (): Promise<number> => {
+  const res = await pool.query<{ count: string }>(
+    "SELECT COUNT(*) as count FROM users WHERE role = 'admin'"
+  );
+  return parseInt(res.rows[0].count, 10);
+};
+
+export const updateUserRole = async (userId: string, role: "admin" | "user" | "team_admin"): Promise<void> => {
   await pool.query("UPDATE users SET role = $1 WHERE id = $2", [role, userId]);
 };
