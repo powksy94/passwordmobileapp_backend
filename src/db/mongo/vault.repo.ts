@@ -22,6 +22,14 @@ export const getVaultById = async (
   return VaultModel.findById(id).exec();
 };
 
+// UPDATE
+export const updateVaultItem = async (
+  id: string,
+  data: Partial<Pick<IVault, 'title' | 'login' | 'password' | 'notes' | 'icon'>>
+): Promise<IVault | null> => {
+  return VaultModel.findByIdAndUpdate(id, data, { new: true }).exec();
+};
+
 // DELETE
 export const deleteVaultItem = async (id: string): Promise<void> => {
   await VaultModel.findByIdAndDelete(id).exec();

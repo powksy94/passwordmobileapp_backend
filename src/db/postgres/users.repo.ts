@@ -44,3 +44,7 @@ export const getAdminCount = async (): Promise<number> => {
 export const updateUserRole = async (userId: string, role: "admin" | "user" | "team_admin"): Promise<void> => {
   await pool.query("UPDATE users SET role = $1 WHERE id = $2", [role, userId]);
 };
+
+export const updateUserPassword = async (id: string, hashedPassword: string): Promise<void> => {
+  await pool.query("UPDATE users SET password = $1 WHERE id = $2", [hashedPassword, id]);
+};

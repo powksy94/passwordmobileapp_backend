@@ -85,3 +85,59 @@ export const login = async (
     }
   };
 
+export const changePassword = async (
+  req: Request<{}, {}, { currentPassword: string; newPassword: string }>,
+  res: Response
+): Promise<void> => {
+  try {
+    if (!req.user) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      res.status(400).json({ error: "currentPassword and newPassword are required" });
+      return;
+    }
+
+    const user = await UsersRepo.getUserById(req.user.id);
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    const valid = await bcrypt.compare(currentPassword, user.password);
+    if (!valid) {
+      res.status(401).json({ error: "Current password is incorrect" });
+      return;
+    }
+
+    const hashed = await bcrypt.hash(newPassword, 12);
+    await UsersRepo.updateUserPassword(req.user.id, hashed);
+
+    logger.info("Password changed", { userId: req.user.id });
+    res.status(200).json({ message: "Password updated" });
+  } catch (error) {
+    logger.error("Change password error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const deleteAccount = async (req: Request, res: Response): Promise<void> => {
+  try {
+    if (!req.user) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+
+    await UsersRepo.deleteUser(req.user.id);
+
+    logger.info("Account deleted", { userId: req.user.id });
+    res.status(204).send();
+  } catch (error) {
+    logger.error("Delete account error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
