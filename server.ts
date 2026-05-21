@@ -22,6 +22,10 @@ const starServer = async () => {
         salt TEXT
       )
     `);
+    // Migration : ajout de la colonne fcm_token si absente
+    await pool.query(`
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS fcm_token TEXT
+    `);
     logger.info("✅ Users table ready");
 
     app.listen(PORT, () => {

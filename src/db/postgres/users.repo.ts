@@ -48,3 +48,15 @@ export const updateUserRole = async (userId: string, role: "admin" | "user" | "t
 export const updateUserPassword = async (id: string, hashedPassword: string): Promise<void> => {
   await pool.query("UPDATE users SET password = $1 WHERE id = $2", [hashedPassword, id]);
 };
+
+export const updateFcmToken = async (id: string, fcmToken: string): Promise<void> => {
+  await pool.query("UPDATE users SET fcm_token = $1 WHERE id = $2", [fcmToken, id]);
+};
+
+export const getFcmToken = async (id: string): Promise<string | null> => {
+  const res = await pool.query<{ fcm_token: string | null }>(
+    "SELECT fcm_token FROM users WHERE id = $1",
+    [id]
+  );
+  return res.rows[0]?.fcm_token ?? null;
+};

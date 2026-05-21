@@ -5,6 +5,7 @@ import vaultRoutes from "./src/routes/vaultRoutes";
 import adminRoutes from "./src/routes/adminRoutes"
 import generatorRoutes from "./src/routes/generatorRoutes"
 import teamAdminRoutes from "./src/routes/teamAdminRoutes"
+import adminAuthRoutes from "./src/routes/adminAuthRoutes"
 import cors from "cors"
 import { CORS_ORIGIN } from "./src/config/env";
 
@@ -17,7 +18,8 @@ app.use("/auth", authRoutes);
 app.use("/vault", vaultRoutes);
 app.use("/admin", adminRoutes);
 app.use("/generator", generatorRoutes);
-app.use("/team", teamAdminRoutes);
+app.use("/team",       teamAdminRoutes);
+app.use("/admin-auth", adminAuthRoutes);
 
 // middleware d'erreurs EN DERNIER
 app.use(errorMiddleware);

@@ -85,6 +85,20 @@ export const login = async (
     }
   };
 
+export const updateFcmToken = async (req: Request, res: Response): Promise<void> => {
+  if (!req.user) {
+    res.status(401).json({ error: 'Unauthorized' });
+    return;
+  }
+  const { fcmToken } = req.body as { fcmToken?: string };
+  if (!fcmToken) {
+    res.status(400).json({ error: 'fcmToken requis' });
+    return;
+  }
+  await UsersRepo.updateFcmToken(req.user.id, fcmToken);
+  res.status(200).json({ message: 'FCM token enregistré' });
+};
+
 export const changePassword = async (
   req: Request<{}, {}, { currentPassword: string; newPassword: string }>,
   res: Response
