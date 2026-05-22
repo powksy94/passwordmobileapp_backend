@@ -28,6 +28,16 @@ const starServer = async () => {
     `);
     logger.info("✅ Users table ready");
 
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS admin_vault_config (
+        admin_id   UUID PRIMARY KEY,
+        vault_key  TEXT NOT NULL,
+        vault_salt TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    logger.info("✅ Admin vault config table ready");
+
     app.listen(PORT, () => {
       logger.info(`Server running on port ${PORT} in ${NODE_ENV} mode`);
     });
