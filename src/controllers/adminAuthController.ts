@@ -51,6 +51,13 @@ export const requestAdminAuth = async (req: Request, res: Response): Promise<voi
 
   // Envoi de la push notification FCM
   const fcmToken = await UsersRepo.getFcmToken(user.id);
+  let fcmStatus: 'sent' | 'no_token' | 'error' = 'no_token';
+  let fcmError: string | undefined;
+
+  if (!fcmToken) {
+    logger.warn('FCM token absent pour cet utilisateur', { userId: user.id });
+  }
+
   if (fcmToken) {
     try {
       await firebaseAdmin.messaging().send({
@@ -68,13 +75,16 @@ export const requestAdminAuth = async (req: Request, res: Response): Promise<voi
           notification: { channelId: 'admin_auth' },
         },
       });
+      fcmStatus = 'sent';
       logger.info('Push notification envoyée', { userId: user.id, sessionId });
     } catch (err) {
+      fcmStatus = 'error';
+      fcmError = (err as Error).message;
       logger.error('Échec envoi FCM:', err);
     }
   }
 
-  res.status(200).json({ sessionId });
+  res.status(200).json({ sessionId, debug: { fcmStatus, fcmError } });
 };
 
 // ── Réponse depuis l'app Flutter (approuver ou refuser) ───────────────────────
