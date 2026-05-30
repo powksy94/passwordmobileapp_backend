@@ -93,13 +93,24 @@ const starServer = async () => {
         );
         if (orphan.rows.length > 0) {
           const oldId = orphan.rows[0].admin_id;
-          // Réattache le vault config à l'utilisateur actuel
-          await pool.query(
-            `UPDATE admin_vault_config SET admin_id = $1 WHERE admin_id = $2`,
-            [newId, oldId]
+          const hasConfig = await pool.query(
+            `SELECT 1 FROM admin_vault_config WHERE admin_id = $1`, [newId]
           );
-          await AdminVaultModel.updateMany({ adminId: oldId }, { adminId: newId });
-          logger.info(`✅ Vault config + items MongoDB réattachés (${oldId} → ${newId})`);
+          if (hasConfig.rows.length === 0) {
+            // Nouveau compte sans config : réattache l'orphelin
+            await pool.query(
+              `UPDATE admin_vault_config SET admin_id = $1 WHERE admin_id = $2`,
+              [newId, oldId]
+            );
+            await AdminVaultModel.updateMany({ adminId: oldId }, { adminId: newId });
+            logger.info(`✅ Vault config + items MongoDB réattachés (${oldId} → ${newId})`);
+          } else {
+            // Nouveau compte a déjà sa propre config : supprime l'orphelin
+            await pool.query(
+              `DELETE FROM admin_vault_config WHERE admin_id = $1`, [oldId]
+            );
+            logger.info(`✅ Vault config orphelin supprimé (${oldId})`);
+          }
         }
       }
     }
