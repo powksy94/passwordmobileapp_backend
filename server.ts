@@ -3,6 +3,7 @@ import { connectMongo } from "./src/config/mongo";
 import { pool } from "./src/config/postgres";
 import { NODE_ENV, PORT } from "./src/config/env";
 import logger from "./src/config/logger";
+import { AdminVaultModel } from "./src/db/mongo/admin-vault.model";
 
 const starServer = async () => {
   try {
@@ -75,6 +76,31 @@ const starServer = async () => {
       );
       if (result.rowCount && result.rowCount > 0) {
         logger.info(`✅ Compte ${adminEmail} promu admin`);
+      }
+
+      // Migration : si l'admin vient d'être recréé avec un nouvel UUID,
+      // réattache l'ancien vault config orphelin pour préserver les données.
+      const adminUser = await pool.query(
+        `SELECT id FROM users WHERE email = $1`, [adminEmail]
+      );
+      if (adminUser.rows.length > 0) {
+        const newId = adminUser.rows[0].id;
+        // Cherche un vault config orphelin (sans utilisateur correspondant)
+        const orphan = await pool.query(
+          `SELECT admin_id FROM admin_vault_config
+           WHERE admin_id NOT IN (SELECT id FROM users)
+           LIMIT 1`
+        );
+        if (orphan.rows.length > 0) {
+          const oldId = orphan.rows[0].admin_id;
+          // Réattache le vault config à l'utilisateur actuel
+          await pool.query(
+            `UPDATE admin_vault_config SET admin_id = $1 WHERE admin_id = $2`,
+            [newId, oldId]
+          );
+          await AdminVaultModel.updateMany({ adminId: oldId }, { adminId: newId });
+          logger.info(`✅ Vault config + items MongoDB réattachés (${oldId} → ${newId})`);
+        }
       }
     }
 
