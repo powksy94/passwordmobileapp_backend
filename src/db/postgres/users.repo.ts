@@ -2,9 +2,12 @@ import { pool } from "../../config/postgres";
 import type { User } from "./users.types";
 
 export const getUserByEmail = async (email: string): Promise<User | null> => {
-  const res = await pool.query<User>("SELECT * FROM users WHERE email = $1", [
-    email,
-  ]);
+  const res = await pool.query<User>(
+    `SELECT * FROM users WHERE email = $1
+     ORDER BY CASE role WHEN 'admin' THEN 0 WHEN 'team_admin' THEN 1 ELSE 2 END
+     LIMIT 1`,
+    [email],
+  );
   return res.rows[0] ?? null;
 };
 

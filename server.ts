@@ -26,6 +26,34 @@ const starServer = async () => {
     await pool.query(`
       ALTER TABLE users ADD COLUMN IF NOT EXISTS fcm_token TEXT
     `);
+
+    // Migration : suppression des doublons email (garde le compte admin/team_admin)
+    await pool.query(`
+      DELETE FROM users WHERE id IN (
+        SELECT id FROM (
+          SELECT id,
+                 ROW_NUMBER() OVER (
+                   PARTITION BY email
+                   ORDER BY CASE role WHEN 'admin' THEN 0 WHEN 'team_admin' THEN 1 ELSE 2 END
+                 ) AS rn
+          FROM users
+        ) ranked
+        WHERE rn > 1
+      )
+    `);
+
+    // Migration : ajout de la contrainte UNIQUE sur email si absente
+    await pool.query(`
+      DO $$ BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM pg_constraint
+          WHERE conname = 'users_email_key' AND conrelid = 'users'::regclass
+        ) THEN
+          ALTER TABLE users ADD CONSTRAINT users_email_key UNIQUE (email);
+        END IF;
+      END $$
+    `);
+
     logger.info("✅ Users table ready");
 
     await pool.query(`
