@@ -66,6 +66,18 @@ const starServer = async () => {
     `);
     logger.info("✅ Admin vault config table ready");
 
+    // Migration : promotion automatique de l'ADMIN_EMAIL en admin
+    const adminEmail = process.env.ADMIN_EMAIL;
+    if (adminEmail) {
+      const result = await pool.query(
+        `UPDATE users SET role = 'admin' WHERE email = $1 AND role != 'admin'`,
+        [adminEmail]
+      );
+      if (result.rowCount && result.rowCount > 0) {
+        logger.info(`✅ Compte ${adminEmail} promu admin`);
+      }
+    }
+
     app.listen(PORT, () => {
       logger.info(`Server running on port ${PORT} in ${NODE_ENV} mode`);
     });
