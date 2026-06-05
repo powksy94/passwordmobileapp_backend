@@ -7,6 +7,7 @@ export interface IVault extends Document {
   password: string;
   notes: string;
   icon: string;
+  url: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -18,7 +19,8 @@ const VaultSchema = new Schema<IVault>(
     login: { type: String, default: ""},
     password: { type: String, required: true},
     notes: { type: String, default: ""},
-    icon: { type: String, default: "lock"}
+    icon: { type: String, default: "lock"},
+    url: { type: String, default: ""},
   },
   {
     timestamps: true, 

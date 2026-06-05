@@ -11,7 +11,7 @@ export const addVaultItem = async (req: Request, res: Response): Promise<void> =
     return;
   }
 
-  const { title, login, password, notes, icon } = req.body;
+  const { title, login, password, notes, icon, url } = req.body;
 
   if (!title || !password) {
     res.status(400).json({ message: "Title and password are required." });
@@ -27,6 +27,7 @@ export const addVaultItem = async (req: Request, res: Response): Promise<void> =
       password,
       notes: notes ?? "",
       icon: icon ?? "lock",
+      url: url ?? "",
     });
 
 
@@ -58,6 +59,7 @@ export const getVault = async (req: Request, res: Response): Promise<void> => {
       password: item.password,
       notes: item.notes,
       icon: item.icon,
+      url: item.url ?? "",
       createdAt: item.createdAt,
     }));
 
@@ -78,7 +80,7 @@ export const updateVaultItem = async (req: Request, res: Response): Promise<void
   }
 
   const { id } = req.params;
-  const { title, login, password, notes, icon } = req.body;
+  const { title, login, password, notes, icon, url } = req.body;
 
   if (!title || !password) {
     res.status(400).json({ message: "Title and password are required." });
@@ -104,6 +106,7 @@ export const updateVaultItem = async (req: Request, res: Response): Promise<void
       password,
       notes:    notes    ?? "",
       icon:     icon     ?? "lock",
+      url:      url      ?? "",
     });
 
     logger.info("Vault item updated", { userId: req.user.id, vaultId: id });
