@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { authMiddleware } from '../../shared/middleware/auth.middleware.js';
-import { roleMiddleware } from '../../shared/middleware/role.middleware.js';
-import * as ctrl from './adminController.js';
+import { authMiddleware } from '../../../shared/middleware/auth.middleware.js';
+import { roleMiddleware } from '../../../shared/middleware/role.middleware.js';
+import * as ctrl from '../controller/adminController.js';
 
 const router = Router();
 

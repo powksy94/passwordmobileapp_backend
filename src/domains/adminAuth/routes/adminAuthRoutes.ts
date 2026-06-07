@@ -3,8 +3,8 @@ import {
   requestAdminAuth,
   respondAdminAuth,
   checkAdminAuthStatus,
-} from './adminAuthController.js';
-import { authMiddleware } from '../../shared/middleware/auth.middleware.js';
+} from '../controller/adminAuthController.js';
+import { authMiddleware } from '../../../shared/middleware/auth.middleware.js';
 
 const router = Router();
 

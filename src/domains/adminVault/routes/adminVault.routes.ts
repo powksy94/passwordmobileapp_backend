@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { authMiddleware } from '../../shared/middleware/auth.middleware.js';
-import { roleMiddleware } from '../../shared/middleware/role.middleware.js';
-import * as vaultAuthCtrl from './adminVaultAuthController.js';
-import * as vaultCtrl from './adminVaultController.js';
+import { authMiddleware } from '../../../shared/middleware/auth.middleware.js';
+import { roleMiddleware } from '../../../shared/middleware/role.middleware.js';
+import * as vaultAuthCtrl from '../controller/adminVaultAuthController.js';
+import * as vaultCtrl from '../controller/adminVaultController.js';
 
 const router = Router();
 

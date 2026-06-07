@@ -1,4 +1,4 @@
-import { AdminVaultModel, IAdminVaultItem } from './admin-vault.model.js';
+import { AdminVaultModel, IAdminVaultItem } from '../model/admin-vault.model.js';
 
 export const getItemsByAdmin = (adminId: string): Promise<IAdminVaultItem[]> =>
   AdminVaultModel.find({ adminId }).sort({ createdAt: -1 }).exec();

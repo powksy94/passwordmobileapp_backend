@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { addVaultItem, getVault, updateVaultItem, deleteVaultItem } from "./vaultController";
-import { reencryptVault } from "./vaultReencryptController";
-import { authMiddleware } from "../../shared/middleware/auth.middleware";
+import { addVaultItem, getVault, updateVaultItem, deleteVaultItem } from "../controller/vaultController";
+import { reencryptVault } from "../controller/vaultReencryptController";
+import { authMiddleware } from "../../../shared/middleware/auth.middleware";
 
 const router = Router();
 

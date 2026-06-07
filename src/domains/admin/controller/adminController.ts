@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import * as UsersRepo from "../../shared/db/postgres/users.repo";
-import * as AuditRepo from "../audit/audit.repo";
-import logger from "../../shared/config/logger";
+import * as UsersRepo from "../../../shared/db/postgres/users.repo";
+import * as AuditRepo from "../../audit/repo/audit.repo";
+import logger from "../../../shared/config/logger";
 
 // ---------------------
 // GET ALL USERS

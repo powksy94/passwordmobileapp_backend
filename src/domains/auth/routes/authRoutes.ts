@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { register, login, updateFcmToken, changePassword, deleteAccount } from "./authController";
-import { authMiddleware } from "../../shared/middleware/auth.middleware";
+import { register, login, updateFcmToken, changePassword, deleteAccount } from "../controller/authController";
+import { authMiddleware } from "../../../shared/middleware/auth.middleware";
 
 const router = Router();
 

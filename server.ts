@@ -3,7 +3,7 @@ import { connectMongo } from "./src/shared/config/mongo";
 import { pool } from "./src/shared/config/postgres";
 import { NODE_ENV, PORT } from "./src/shared/config/env";
 import logger from "./src/shared/config/logger";
-import { AdminVaultModel } from "./src/domains/adminVault/admin-vault.model";
+import { AdminVaultModel } from "./src/domains/adminVault/model/admin-vault.model";
 
 const starServer = async () => {
   try {

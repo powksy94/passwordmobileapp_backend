@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import * as VaultRepo from "./vault.repo.js";
-import logger from "../../shared/config/logger";
+import * as VaultRepo from "../repo/vault.repo.js";
+import logger from "../../../shared/config/logger";
 
 // ---------------------
 // ADD VAULT ITEM

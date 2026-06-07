@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { VaultModel, IVault } from "./vault.model.js";
+import { VaultModel, IVault } from "../model/vault.model.js";
 
 export interface ReencryptItem {
   id: string;
