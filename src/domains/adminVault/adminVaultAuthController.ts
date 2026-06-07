@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import crypto from 'crypto';
-import * as AdminVaultConfigRepo from '../db/postgres/admin-vault-config.repo.js';
-import * as UsersRepo from '../db/postgres/users.repo.js';
-import firebaseAdmin from '../config/firebase-admin.js';
-import logger from '../config/logger.js';
+import * as AdminVaultConfigRepo from './admin-vault-config.repo.js';
+import * as UsersRepo from '../../shared/db/postgres/users.repo.js';
+import firebaseAdmin from '../../shared/config/firebase-admin.js';
+import logger from '../../shared/config/logger.js';
 
 // ── Sessions vault en mémoire (TTL 5 min) ─────────────────────────────────────
 

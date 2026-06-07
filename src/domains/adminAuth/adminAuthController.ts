@@ -2,10 +2,10 @@ import { Request, Response } from 'express';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import type { SignOptions } from 'jsonwebtoken';
-import * as UsersRepo from '../db/postgres/users.repo.js';
-import firebaseAdmin from '../config/firebase-admin.js';
-import { JWT_SECRET, JWT_EXPIRES_IN } from '../config/env.js';
-import logger from '../config/logger.js';
+import * as UsersRepo from '../../shared/db/postgres/users.repo.js';
+import firebaseAdmin from '../../shared/config/firebase-admin.js';
+import { JWT_SECRET, JWT_EXPIRES_IN } from '../../shared/config/env.js';
+import logger from '../../shared/config/logger.js';
 
 // ── Sessions en mémoire (TTL 5 min, nettoyage auto) ──────────────────────────
 

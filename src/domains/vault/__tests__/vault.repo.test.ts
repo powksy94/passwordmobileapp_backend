@@ -1,6 +1,6 @@
 import { describe, it, expect, jest } from "@jest/globals";
-import * as VaultRepo from "../../db/mongo/vault.repo";
-import { VaultModel } from "../../db/mongo/vault.model";
+import * as VaultRepo from "../vault.repo";
+import { VaultModel } from "../vault.model";
 
 describe("Vault repository", () => {
   it("should create a vault item", async () => {

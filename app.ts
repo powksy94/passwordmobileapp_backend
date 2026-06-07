@@ -1,13 +1,14 @@
 import express from "express";
-import { errorMiddleware } from "./src/middleware/error.middleware";
-import authRoutes from "./src/routes/authRoutes";
-import vaultRoutes from "./src/routes/vaultRoutes";
-import adminRoutes from "./src/routes/adminRoutes"
-import generatorRoutes from "./src/routes/generatorRoutes"
-import teamAdminRoutes from "./src/routes/teamAdminRoutes"
-import adminAuthRoutes from "./src/routes/adminAuthRoutes"
+import { errorMiddleware } from "./src/shared/middleware/error.middleware";
+import authRoutes from "./src/domains/auth/authRoutes";
+import vaultRoutes from "./src/domains/vault/vaultRoutes";
+import adminRoutes from "./src/domains/admin/admin.routes"
+import adminVaultRoutes from "./src/domains/adminVault/adminVault.routes"
+import generatorRoutes from "./src/domains/generator/generatorRoutes"
+import teamAdminRoutes from "./src/domains/team/teamAdminRoutes"
+import adminAuthRoutes from "./src/domains/adminAuth/adminAuthRoutes"
 import cors from "cors"
-import { CORS_ORIGIN } from "./src/config/env";
+import { CORS_ORIGIN } from "./src/shared/config/env";
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use(cors({ origin: CORS_ORIGIN }))
 app.use("/auth", authRoutes);
 app.use("/vault", vaultRoutes);
 app.use("/admin", adminRoutes);
+app.use("/admin", adminVaultRoutes);
 app.use("/generator", generatorRoutes);
 app.use("/team",       teamAdminRoutes);
 app.use("/admin-auth", adminAuthRoutes);

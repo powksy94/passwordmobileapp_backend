@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import * as AuditRepo from "../db/postgres/audit.repo";
+import * as AuditRepo from "./audit.repo";
 
 export const auditMiddleware = async (req: Request, res: Response, next: NextFunction) => {
   res.on("finish", async () => {

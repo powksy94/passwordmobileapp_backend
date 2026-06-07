@@ -1,10 +1,10 @@
 import type { Request, Response } from "express";
-import * as UsersRepo from "../db/postgres/users.repo";
+import * as UsersRepo from "../../shared/db/postgres/users.repo";
 import bcrypt from "bcrypt"; // ✅ correction
 import jwt from "jsonwebtoken";
-import { JWT_SECRET, JWT_EXPIRES_IN } from "../config/env";
+import { JWT_SECRET, JWT_EXPIRES_IN } from "../../shared/config/env";
 import type { SignOptions } from "jsonwebtoken";
-import logger from "../config/logger";
+import logger from "../../shared/config/logger";
 
 interface AuthRequestBody {
   email: string;

@@ -1,4 +1,4 @@
-import { pool } from '../../config/postgres.js';
+import { pool } from '../../shared/config/postgres.js';
 import crypto from 'crypto';
 
 interface AdminVaultConfig {

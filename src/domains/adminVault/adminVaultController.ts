@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import * as AdminVaultRepo from '../db/mongo/admin-vault.repo.js';
-import * as AdminVaultConfigRepo from '../db/postgres/admin-vault-config.repo.js';
+import * as AdminVaultRepo from './admin-vault.repo.js';
+import * as AdminVaultConfigRepo from './admin-vault-config.repo.js';
 
 // ── 3. GET /admin/vault ───────────────────────────────────────────────────────
 // Retourne { salt, items[] }

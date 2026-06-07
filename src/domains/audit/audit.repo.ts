@@ -1,4 +1,4 @@
-import { pool } from "../../config/postgres.js";
+import { pool } from "../../shared/config/postgres.js";
 
 export const logAction = async (userId: string, action: string) => {
   await pool.query(

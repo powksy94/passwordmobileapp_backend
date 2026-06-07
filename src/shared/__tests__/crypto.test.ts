@@ -1,5 +1,5 @@
 import { describe, it, expect } from "@jest/globals";
-import { encryptValue, decryptValue } from "../../config/crypto";
+import { encryptValue, decryptValue } from "../config/crypto";
 
 describe("Crypto service", () => {
   it("should encrypt and decrypt correctly", () => {

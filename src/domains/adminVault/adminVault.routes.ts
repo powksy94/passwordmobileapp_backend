@@ -1,15 +1,10 @@
 import { Router } from 'express';
-import { authMiddleware } from '../middleware/auth.middleware.js';
-import { roleMiddleware } from '../middleware/role.middleware.js';
-import * as ctrl from '../controllers/adminController.js';
-import * as vaultAuthCtrl from '../controllers/adminVaultAuthController.js';
-import * as vaultCtrl from '../controllers/adminVaultController.js';
+import { authMiddleware } from '../../shared/middleware/auth.middleware.js';
+import { roleMiddleware } from '../../shared/middleware/role.middleware.js';
+import * as vaultAuthCtrl from './adminVaultAuthController.js';
+import * as vaultCtrl from './adminVaultController.js';
 
 const router = Router();
-
-// ── Gestion utilisateurs ──────────────────────────────────────────────────────
-router.get('/users', authMiddleware, roleMiddleware('admin'), ctrl.getAllUsers);
-router.post('/role', authMiddleware, roleMiddleware('admin'), ctrl.updateRole);
 
 // ── Vault admin ───────────────────────────────────────────────────────────────
 // Auth biométrique (push FCM)

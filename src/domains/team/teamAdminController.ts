@@ -1,7 +1,7 @@
 // src/controllers/teamAdminController.ts
 import { Request, Response } from "express";
-import { pool } from "../config/postgres";
-import logger from "../config/logger";
+import { pool } from "../../shared/config/postgres";
+import logger from "../../shared/config/logger";
 
 // Ajout d'un membre avec rôle "user"
 export const addMember = async (req: Request, res: Response) => {

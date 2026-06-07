@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import * as VaultRepo from "../db/mongo/vault.repo.js";
-import logger from "../config/logger";
+import * as VaultRepo from "./vault.repo.js";
+import logger from "../../shared/config/logger";
 
 // ---------------------
 // BULK RE-ENCRYPT (changement du mot de passe maître)

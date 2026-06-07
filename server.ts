@@ -1,9 +1,9 @@
 import app from "./app.js";
-import { connectMongo } from "./src/config/mongo";
-import { pool } from "./src/config/postgres";
-import { NODE_ENV, PORT } from "./src/config/env";
-import logger from "./src/config/logger";
-import { AdminVaultModel } from "./src/db/mongo/admin-vault.model";
+import { connectMongo } from "./src/shared/config/mongo";
+import { pool } from "./src/shared/config/postgres";
+import { NODE_ENV, PORT } from "./src/shared/config/env";
+import logger from "./src/shared/config/logger";
+import { AdminVaultModel } from "./src/domains/adminVault/admin-vault.model";
 
 const starServer = async () => {
   try {
