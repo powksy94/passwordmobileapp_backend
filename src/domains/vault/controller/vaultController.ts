@@ -11,10 +11,15 @@ export const addVaultItem = async (req: Request, res: Response): Promise<void> =
     return;
   }
 
-  const { title, login, password, notes, icon, url } = req.body;
+  const { title, login, password, notes, icon, url, strength } = req.body;
 
   if (!title || !password) {
     res.status(400).json({ message: "Title and password are required." });
+    return;
+  }
+
+  if (strength !== undefined && !['weak', 'medium', 'strong'].includes(strength)) {
+    res.status(400).json({ message: "Invalid strength value." });
     return;
   }
 
@@ -28,6 +33,7 @@ export const addVaultItem = async (req: Request, res: Response): Promise<void> =
       notes: notes ?? "",
       icon: icon ?? "lock",
       url: url ?? "",
+      strength,
     });
 
 
@@ -80,10 +86,15 @@ export const updateVaultItem = async (req: Request, res: Response): Promise<void
   }
 
   const { id } = req.params;
-  const { title, login, password, notes, icon, url } = req.body;
+  const { title, login, password, notes, icon, url, strength } = req.body;
 
   if (!title || !password) {
     res.status(400).json({ message: "Title and password are required." });
+    return;
+  }
+
+  if (strength !== undefined && !['weak', 'medium', 'strong'].includes(strength)) {
+    res.status(400).json({ message: "Invalid strength value." });
     return;
   }
 
@@ -107,6 +118,7 @@ export const updateVaultItem = async (req: Request, res: Response): Promise<void
       notes:    notes    ?? "",
       icon:     icon     ?? "lock",
       url:      url      ?? "",
+      strength,
     });
 
     logger.info("Vault item updated", { userId: req.user.id, vaultId: id });

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import * as UsersRepo from "../../../shared/db/postgres/users.repo";
 import * as AuditRepo from "../../audit/repo/audit.repo";
+import * as VaultRepo from "../../vault/repo/vault.repo.js";
 import logger from "../../../shared/config/logger";
 
 // ---------------------
@@ -35,6 +36,24 @@ export const deleteUser = async (req: Request, res: Response) => {
   } catch (err) {
     logger.error("Failed to delete user", { error: err, adminId: req.user?.id });
     res.status(500).json({ message: "Failed to delete user." });
+  }
+};
+
+// ---------------------
+// GET USER VAULT STRENGTH STATS
+// ---------------------
+export const getUserVaultStats = async (req: Request, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const { userId } = req.params;
+    const stats = await VaultRepo.getVaultStrengthStats(userId);
+    res.status(200).json(stats);
+  } catch (err) {
+    logger.error("Failed to get user vault stats", { error: err, adminId: req.user?.id });
+    res.status(500).json({ message: "Failed to get user vault stats." });
   }
 };
 

@@ -36,7 +36,7 @@ export const getVaultById = async (
 // UPDATE
 export const updateVaultItem = async (
   id: string,
-  data: Partial<Pick<IVault, 'title' | 'login' | 'password' | 'notes' | 'icon' | 'url'>>
+  data: Partial<Pick<IVault, 'title' | 'login' | 'password' | 'notes' | 'icon' | 'url' | 'strength'>>
 ): Promise<IVault | null> => {
   return VaultModel.findByIdAndUpdate(id, data, { new: true }).exec();
 };
@@ -78,4 +78,29 @@ export const reencryptVaultItems = async (
   } finally {
     await session.endSession();
   }
+};
+
+// STRENGTH STATS (panel admin) — agrégation de comptage par catégorie,
+// sans jamais lire ni déchiffrer le contenu des items.
+export interface VaultStrengthStats {
+  total: number;
+  strong: number;
+  medium: number;
+  weak: number;
+  unrated: number;
+}
+
+export const getVaultStrengthStats = async (userId: string): Promise<VaultStrengthStats> => {
+  const results = await VaultModel.aggregate([
+    { $match: { userId } },
+    { $group: { _id: '$strength', count: { $sum: 1 } } },
+  ]);
+
+  const stats: VaultStrengthStats = { total: 0, strong: 0, medium: 0, weak: 0, unrated: 0 };
+  for (const r of results) {
+    const key = (r._id ?? 'unrated') as 'strong' | 'medium' | 'weak' | 'unrated';
+    stats[key] = r.count;
+    stats.total += r.count;
+  }
+  return stats;
 };

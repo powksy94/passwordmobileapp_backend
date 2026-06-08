@@ -8,6 +8,7 @@ export interface IVault extends Document {
   notes: string;
   icon: string;
   url: string;
+  strength?: 'weak' | 'medium' | 'strong';
   createdAt: Date;
   updatedAt: Date;
 }
@@ -21,6 +22,7 @@ const VaultSchema = new Schema<IVault>(
     notes: { type: String, default: ""},
     icon: { type: String, default: "lock"},
     url: { type: String, default: ""},
+    strength: { type: String, enum: ['weak', 'medium', 'strong'], required: false },
   },
   {
     timestamps: true, 

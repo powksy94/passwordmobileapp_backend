@@ -7,6 +7,7 @@ const router = Router();
 
 // ── Gestion utilisateurs ──────────────────────────────────────────────────────
 router.get('/users', authMiddleware, roleMiddleware('admin'), ctrl.getAllUsers);
+router.get('/users/:userId/vault-stats', authMiddleware, roleMiddleware('admin'), ctrl.getUserVaultStats);
 router.post('/role', authMiddleware, roleMiddleware('admin'), ctrl.updateRole);
 
 export default router;
