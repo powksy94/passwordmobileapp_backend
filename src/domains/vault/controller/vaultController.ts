@@ -162,3 +162,21 @@ export const deleteVaultItem = async (req: Request, res: Response): Promise<void
     res.status(500).json({ message: "Failed to delete vault item." });
   }
 };
+
+// ---------------------
+// PURGE ALL VAULT ITEMS (reset coffre)
+// ---------------------
+export const purgeVault = async (req: Request, res: Response): Promise<void> => {
+  if (!req.user) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+  try {
+    await VaultRepo.deleteAllVaultItemsByUser(req.user.id);
+    logger.info("Vault purged", { userId: req.user.id });
+    res.status(204).send();
+  } catch (error) {
+    logger.error("Failed to purge vault", { error, userId: req.user.id });
+    res.status(500).json({ message: "Failed to purge vault." });
+  }
+};

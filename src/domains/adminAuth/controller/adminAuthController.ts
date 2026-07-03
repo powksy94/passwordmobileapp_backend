@@ -61,6 +61,7 @@ export const requestAdminAuth = async (req: Request, res: Response): Promise<voi
         data: {
           type:      'admin_approval_request',
           sessionId,
+          userId:    user.id,
         },
         notification: {
           title: '🔐 Connexion admin',

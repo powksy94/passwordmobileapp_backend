@@ -46,6 +46,11 @@ export const deleteVaultItem = async (id: string): Promise<void> => {
   await VaultModel.findByIdAndDelete(id).exec();
 };
 
+// DELETE ALL (reset coffre)
+export const deleteAllVaultItemsByUser = async (userId: string): Promise<void> => {
+  await VaultModel.deleteMany({ userId }).exec();
+};
+
 // BULK RE-ENCRYPT (changement du mot de passe maître) — transaction tout-ou-rien :
 // si un seul item échoue (introuvable, appartenant à un autre utilisateur, etc.),
 // MongoDB annule automatiquement toutes les écritures déjà effectuées dans la session.
