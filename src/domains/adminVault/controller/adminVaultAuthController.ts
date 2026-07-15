@@ -37,14 +37,15 @@ export const requestVaultAuth = async (req: Request, res: Response): Promise<voi
   });
 
   const fcmToken = await UsersRepo.getFcmToken(req.user.id);
+  const requestIp = req.ip ?? 'IP inconnue';
   if (fcmToken) {
     try {
       await firebaseAdmin.messaging().send({
         token: fcmToken,
-        data: { type: 'admin_vault_auth', sessionId },
+        data: { type: 'admin_vault_auth', sessionId, requestIp },
         notification: {
           title: '🔐 Accès au vault admin',
-          body:  'Une demande d\'accès au vault admin nécessite votre approbation',
+          body:  `Une demande d'accès au vault admin depuis ${requestIp} nécessite votre approbation. Si ce n'est pas vous, refusez.`,
         },
         android: { priority: 'high', notification: { channelId: 'admin_auth' } },
       });
@@ -60,9 +61,13 @@ export const requestVaultAuth = async (req: Request, res: Response): Promise<voi
 // Polling depuis le panel React → retourne { status, vaultKey? }
 
 export const checkVaultAuthStatus = async (req: Request, res: Response): Promise<void> => {
+  if (!req.user) { res.status(401).json({ error: 'Unauthorized' }); return; }
+
   const session = vaultSessions.get(req.params.sessionId);
 
   if (!session) { res.status(200).json({ status: 'expired' }); return; }
+
+  if (session.adminUserId !== req.user.id) { res.status(403).json({ error: 'Forbidden' }); return; }
 
   const elapsed = Date.now() - session.createdAt.getTime();
   if (elapsed > 5 * 60 * 1000) {
