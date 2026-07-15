@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import * as UsersRepo from "../../../shared/db/postgres/users.repo";
+import * as VaultRepo from "../../vault/repo/vault.repo.js";
 import bcrypt from "bcrypt"; // ✅ correction
 import jwt from "jsonwebtoken";
 import { JWT_SECRET, JWT_EXPIRES_IN } from "../../../shared/config/env";
@@ -145,6 +146,7 @@ export const deleteAccount = async (req: Request, res: Response): Promise<void> 
       return;
     }
 
+    await VaultRepo.deleteAllVaultItemsByUser(req.user.id);
     await UsersRepo.deleteUser(req.user.id);
 
     logger.info("Account deleted", { userId: req.user.id });
