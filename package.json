@@ -10,8 +10,8 @@
     "dev": "tsx watch server.ts",
     "build": "tsc",
     "start": "tsx server.ts",
-    "seed": "ts-node src/seed/users.seed.ts",
-    "seed-admin": "tsx src/seed/set_admin.ts",
+    "seed": "ts-node src/shared/seed/users.seed.ts",
+    "seed-admin": "tsx src/shared/seed/set_admin.ts",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write \"src/**/*.ts\"",
     "test": "jest"
