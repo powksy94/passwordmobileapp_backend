@@ -51,6 +51,7 @@ export const requestAdminAuth = async (req: Request, res: Response): Promise<voi
 
   // Envoi de la push notification FCM
   const fcmToken = await UsersRepo.getFcmToken(user.id);
+  const requestIp = req.ip ?? 'IP inconnue';
 
   if (!fcmToken) {
     logger.warn('FCM token absent pour cet utilisateur', { userId: user.id });
@@ -62,10 +63,11 @@ export const requestAdminAuth = async (req: Request, res: Response): Promise<voi
           type:      'admin_approval_request',
           sessionId,
           userId:    user.id,
+          requestIp,
         },
         notification: {
           title: '🔐 Connexion admin',
-          body:  'Tentative de connexion au dashboard admin',
+          body:  `Tentative de connexion au dashboard admin depuis ${requestIp}. Si ce n'est pas vous, refusez.`,
         },
         android: {
           priority: 'high',
