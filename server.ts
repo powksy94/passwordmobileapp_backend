@@ -11,7 +11,7 @@ const starServer = async () => {
     logger.info("✅ MongoDB connected");
 
     console.log("DATABASE_URL defined:", !!process.env.DATABASE_URL, "length:", process.env.DATABASE_URL?.length ?? 0);
-    await pool.connect();
+    await pool.query("SELECT 1");
     logger.info("✅ PostgreSQL connected");
 
     await pool.query(`
@@ -66,6 +66,16 @@ const starServer = async () => {
       )
     `);
     logger.info("✅ Admin vault config table ready");
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS audit (
+        id         SERIAL PRIMARY KEY,
+        user_id    UUID NOT NULL,
+        action     TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    logger.info("✅ Audit table ready");
 
     // Migration : promotion automatique de l'ADMIN_EMAIL en admin
     const adminEmail = process.env.ADMIN_EMAIL;
@@ -132,6 +142,9 @@ const starServer = async () => {
   } catch (err) {
     console.error("BOOTSTRAP ERROR:", err);
     logger.error("Server bootstrap failed: " + JSON.stringify(err, Object.getOwnPropertyNames(err as object)));
+    // Ne jamais laisser le process tourner sans avoir démarré le serveur :
+    // l'orchestrateur (Docker/K8s) doit voir le conteneur comme mort et le redémarrer.
+    process.exit(1);
   }
 };
 
