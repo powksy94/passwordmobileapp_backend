@@ -85,14 +85,22 @@ const starServer = async () => {
       );
       if (adminUser.rows.length > 0) {
         const newId = adminUser.rows[0].id;
-        // Cherche un vault config orphelin (sans utilisateur correspondant)
-        const orphan = await pool.query(
+        // Cherche les vault configs orphelines (sans utilisateur correspondant)
+        const orphans = await pool.query(
           `SELECT admin_id FROM admin_vault_config
-           WHERE admin_id NOT IN (SELECT id FROM users)
-           LIMIT 1`
+           WHERE admin_id NOT IN (SELECT id FROM users)`
         );
-        if (orphan.rows.length > 0) {
-          const oldId = orphan.rows[0].admin_id;
+        if (orphans.rows.length > 1) {
+          // Plusieurs orphelins : impossible de savoir lequel appartient à
+          // l'admin actuel sans risquer de rattacher/écraser la mauvaise clé.
+          // On ne touche à rien et on demande une intervention manuelle.
+          logger.warn(
+            `⚠️ Plusieurs vault configs orphelines détectées (${orphans.rows.length}) — ` +
+            `réattachement automatique désactivé, intervention manuelle requise`,
+            { orphanIds: orphans.rows.map((r) => r.admin_id) }
+          );
+        } else if (orphans.rows.length === 1) {
+          const oldId = orphans.rows[0].admin_id;
           const hasConfig = await pool.query(
             `SELECT 1 FROM admin_vault_config WHERE admin_id = $1`, [newId]
           );
@@ -105,11 +113,14 @@ const starServer = async () => {
             await AdminVaultModel.updateMany({ adminId: oldId }, { adminId: newId });
             logger.info(`✅ Vault config + items MongoDB réattachés (${oldId} → ${newId})`);
           } else {
-            // Nouveau compte a déjà sa propre config : supprime l'orphelin
-            await pool.query(
-              `DELETE FROM admin_vault_config WHERE admin_id = $1`, [oldId]
+            // Nouveau compte a déjà sa propre config : ne jamais supprimer la
+            // clé orpheline (les items MongoDB associés deviendraient
+            // définitivement indéchiffrables). On journalise pour une
+            // décision manuelle (fusion/export/suppression volontaire).
+            logger.warn(
+              `⚠️ Vault config orpheline (${oldId}) coexiste avec la config actuelle (${newId}) — ` +
+              `conservée telle quelle, aucune suppression automatique`
             );
-            logger.info(`✅ Vault config orphelin supprimé (${oldId})`);
           }
         }
       }
