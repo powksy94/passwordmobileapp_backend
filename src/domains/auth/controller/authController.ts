@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken";
 import { JWT_SECRET, JWT_EXPIRES_IN } from "../../../shared/config/env";
 import type { SignOptions } from "jsonwebtoken";
 import logger from "../../../shared/config/logger";
+import { isValidAccountPassword, PASSWORD_POLICY_ERROR } from "../../../shared/utils/passwordPolicy";
 
 interface AuthRequestBody {
   email: string;
@@ -70,6 +71,11 @@ export const login = async (
         return;
       }
 
+      if (!isValidAccountPassword(password)) {
+        res.status(400).json({ error: PASSWORD_POLICY_ERROR });
+        return;
+      }
+
       const existing = await UsersRepo.getUserByEmail(email);
       if (existing) {
         res.status(409).json({ error: "Email already exists"});
@@ -113,6 +119,11 @@ export const changePassword = async (
     const { currentPassword, newPassword } = req.body;
     if (!currentPassword || !newPassword) {
       res.status(400).json({ error: "currentPassword and newPassword are required" });
+      return;
+    }
+
+    if (!isValidAccountPassword(newPassword)) {
+      res.status(400).json({ error: PASSWORD_POLICY_ERROR });
       return;
     }
 
