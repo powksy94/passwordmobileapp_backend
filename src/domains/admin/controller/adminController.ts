@@ -10,7 +10,9 @@ import logger from "../../../shared/config/logger";
 export const getAllUsers = async (_req: Request, res: Response) => {
   try {
     const users = await UsersRepo.getAllUsers();
-    res.json(users);
+    // Ne jamais renvoyer le hash bcrypt ni le salt, même au panel admin.
+    const safeUsers = users.map(({ id, email, role }) => ({ id, email, role }));
+    res.json(safeUsers);
   } catch (err) {
     logger.error("Failed to fetch users", { error: err });
     res.status(500).json({ message: "Failed to fetch users." });
@@ -28,8 +30,12 @@ export const deleteUser = async (req: Request, res: Response) => {
 
     const { id } = req.params;
 
+    await VaultRepo.deleteAllVaultItemsByUser(id);
     await UsersRepo.deleteUser(id);
-    await AuditRepo.logAction(req.user.id, `Deleted user ${id}`);
+    // L'audit ne doit jamais transformer une action déjà effectuée en échec côté client.
+    await AuditRepo.logAction(req.user.id, `Deleted user ${id}`).catch((auditErr) =>
+      logger.error("Audit log failed for deleteUser", { error: auditErr })
+    );
 
     logger.info("User deleted", { adminId: req.user.id, deletedUserId: id });
     res.status(204).send();
@@ -77,7 +83,9 @@ export const updateRole = async (req: Request, res: Response) => {
     }
 
     await UsersRepo.updateUserRole(userId, role);
-    await AuditRepo.logAction(req.user.id, `Updated role for user ${userId} to ${role}`);
+    await AuditRepo.logAction(req.user.id, `Updated role for user ${userId} to ${role}`).catch((auditErr) =>
+      logger.error("Audit log failed for updateRole", { error: auditErr })
+    );
 
     logger.info("User role updated", { adminId: req.user.id, targetUserId: userId, role });
     res.status(200).json({ message: "Role updated successfully." });
