@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import * as VaultRepo from "../repo/vault.repo.js";
+import { validatePasswordItem } from "../validation/password.validation.js";
+import { validatePinItem } from "../validation/pin.validation.js";
 import logger from "../../../shared/config/logger";
 
 // ---------------------
@@ -11,31 +13,20 @@ export const addVaultItem = async (req: Request, res: Response): Promise<void> =
     return;
   }
 
-  const { title, login, password, notes, icon, url, strength } = req.body;
+  const result = req.body.type === 'pin'
+    ? validatePinItem(req.body)
+    : validatePasswordItem(req.body);
 
-  if (!title || !password) {
-    res.status(400).json({ message: "Title and password are required." });
-    return;
-  }
-
-  if (strength !== undefined && !['weak', 'medium', 'strong'].includes(strength)) {
-    res.status(400).json({ message: "Invalid strength value." });
+  if (!result.valid) {
+    res.status(400).json({ message: result.message });
     return;
   }
 
   try {
-
     const vaultItem = await VaultRepo.createVault({
       userId: req.user.id,
-      title,
-      login: login ?? "",
-      password,
-      notes: notes ?? "",
-      icon: icon ?? "lock",
-      url: url ?? "",
-      strength,
+      ...result.item,
     });
-
 
     res.status(201).json({
       id: vaultItem._id,
@@ -60,12 +51,14 @@ export const getVault = async (req: Request, res: Response): Promise<void> => {
 
     const response = items.map(item => ({
       id: item._id,
+      type: item.type ?? 'password',
       title: item.title,
       login: item.login,
       password: item.password,
       notes: item.notes,
       icon: item.icon,
       url: item.url ?? "",
+      pin: item.pin ?? "",
       createdAt: item.createdAt,
     }));
 
@@ -86,15 +79,13 @@ export const updateVaultItem = async (req: Request, res: Response): Promise<void
   }
 
   const { id } = req.params;
-  const { title, login, password, notes, icon, url, strength } = req.body;
 
-  if (!title || !password) {
-    res.status(400).json({ message: "Title and password are required." });
-    return;
-  }
+  const result = req.body.type === 'pin'
+    ? validatePinItem(req.body)
+    : validatePasswordItem(req.body);
 
-  if (strength !== undefined && !['weak', 'medium', 'strong'].includes(strength)) {
-    res.status(400).json({ message: "Invalid strength value." });
+  if (!result.valid) {
+    res.status(400).json({ message: result.message });
     return;
   }
 
@@ -111,15 +102,7 @@ export const updateVaultItem = async (req: Request, res: Response): Promise<void
       return;
     }
 
-    await VaultRepo.updateVaultItem(id, {
-      title,
-      login:    login    ?? "",
-      password,
-      notes:    notes    ?? "",
-      icon:     icon     ?? "lock",
-      url:      url      ?? "",
-      strength,
-    });
+    await VaultRepo.updateVaultItem(id, result.item);
 
     logger.info("Vault item updated", { userId: req.user.id, vaultId: id });
     res.status(200).json({ message: "Item updated" });

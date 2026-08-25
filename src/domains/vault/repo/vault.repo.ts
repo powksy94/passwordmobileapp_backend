@@ -3,12 +3,14 @@ import { VaultModel, IVault } from "../model/vault.model.js";
 
 export interface ReencryptItem {
   id: string;
+  type: 'password' | 'pin';
   title: string;
   login: string;
   password: string;
   notes: string;
   icon: string;
   url: string;
+  pin: string;
 }
 
 // CREATE
@@ -36,7 +38,7 @@ export const getVaultById = async (
 // UPDATE
 export const updateVaultItem = async (
   id: string,
-  data: Partial<Pick<IVault, 'title' | 'login' | 'password' | 'notes' | 'icon' | 'url' | 'strength'>>
+  data: Partial<Pick<IVault, 'type' | 'title' | 'login' | 'password' | 'notes' | 'icon' | 'url' | 'strength' | 'pin' | 'pin_strength'>>
 ): Promise<IVault | null> => {
   return VaultModel.findByIdAndUpdate(id, data, { new: true }).exec();
 };
@@ -69,12 +71,14 @@ export const reencryptVaultItems = async (
         await VaultModel.findByIdAndUpdate(
           item.id,
           {
+            type:     item.type,
             title:    item.title,
             login:    item.login,
             password: item.password,
             notes:    item.notes,
             icon:     item.icon,
             url:      item.url,
+            pin:      item.pin,
           },
           { session }
         ).exec();
@@ -96,8 +100,10 @@ export interface VaultStrengthStats {
 }
 
 export const getVaultStrengthStats = async (userId: string): Promise<VaultStrengthStats> => {
+  // Exclut les PINs : ils ont leur propre catégorie de robustesse (pin_strength),
+  // pas comparable à celle des mots de passe.
   const results = await VaultModel.aggregate([
-    { $match: { userId } },
+    { $match: { userId, type: { $ne: 'pin' } } },
     { $group: { _id: '$strength', count: { $sum: 1 } } },
   ]);
 

@@ -1,5 +1,8 @@
 import { Request, Response } from "express";
 import * as VaultRepo from "../repo/vault.repo.js";
+import type { ReencryptItem } from "../repo/vault.repo.js";
+import { validatePasswordItem } from "../validation/password.validation.js";
+import { validatePinItem } from "../validation/pin.validation.js";
 import logger from "../../../shared/config/logger";
 
 // ---------------------
@@ -18,26 +21,49 @@ export const reencryptVault = async (req: Request, res: Response): Promise<void>
     return;
   }
 
-  for (const item of items) {
-    if (!item || typeof item.id !== "string" || !item.title || !item.password) {
-      res.status(400).json({ message: "Each item requires id, title and password." });
+  const validated: ReencryptItem[] = [];
+  for (const raw of items) {
+    if (!raw || typeof raw.id !== "string") {
+      res.status(400).json({ message: "Each item requires an id." });
       return;
+    }
+
+    if (raw.type === 'pin') {
+      const result = validatePinItem(raw);
+      if (!result.valid) {
+        res.status(400).json({ message: `Item ${raw.id}: ${result.message}` });
+        return;
+      }
+      validated.push({
+        id: raw.id,
+        type: 'pin',
+        title: result.item.title,
+        notes: result.item.notes,
+        pin: result.item.pin,
+        login: "", password: "", icon: "lock", url: "",
+      });
+    } else {
+      const result = validatePasswordItem(raw);
+      if (!result.valid) {
+        res.status(400).json({ message: `Item ${raw.id}: ${result.message}` });
+        return;
+      }
+      validated.push({
+        id: raw.id,
+        type: 'password',
+        title: result.item.title,
+        login: result.item.login,
+        password: result.item.password,
+        notes: result.item.notes,
+        icon: result.item.icon,
+        url: result.item.url,
+        pin: "",
+      });
     }
   }
 
   try {
-    await VaultRepo.reencryptVaultItems(
-      req.user.id,
-      items.map((item) => ({
-        id:       item.id,
-        title:    item.title,
-        login:    item.login ?? "",
-        password: item.password,
-        notes:    item.notes ?? "",
-        icon:     item.icon ?? "lock",
-        url:      item.url ?? "",
-      }))
-    );
+    await VaultRepo.reencryptVaultItems(req.user.id, validated);
 
     logger.info("Vault re-encrypted (master password change)", { userId: req.user.id, count: items.length });
     res.status(200).json({ message: "Vault re-encrypted", count: items.length });
