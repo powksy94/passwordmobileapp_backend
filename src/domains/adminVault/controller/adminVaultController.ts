@@ -3,7 +3,7 @@ import * as AdminVaultRepo from '../repo/admin-vault.repo.js';
 import * as AdminVaultConfigRepo from '../repo/admin-vault-config.repo.js';
 
 // ── 3. GET /admin/vault ───────────────────────────────────────────────────────
-// Retourne { salt, items[] }
+// Returns { salt, items[] }
 
 export const getAdminVault = async (req: Request, res: Response): Promise<void> => {
   if (!req.user) { res.status(401).json({ error: 'Unauthorized' }); return; }
@@ -26,7 +26,7 @@ export const getAdminVault = async (req: Request, res: Response): Promise<void> 
 };
 
 // ── 4. POST /admin/vault ──────────────────────────────────────────────────────
-// Ajoute un item chiffré
+// Adds an encrypted item
 
 export const createAdminVaultItem = async (req: Request, res: Response): Promise<void> => {
   if (!req.user) { res.status(401).json({ error: 'Unauthorized' }); return; }

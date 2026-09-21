@@ -5,8 +5,8 @@ export interface IAdminVaultItem extends Document {
   name:          string;
   type:          'note' | 'file';
   fileName?:     string;
-  encryptedData: string; // base64 — chiffré côté client (AES-256-GCM)
-  iv:            string; // base64 — IV AES-GCM
+  encryptedData: string; // base64, encrypted client-side (AES-256-GCM)
+  iv:            string; // base64, AES-GCM IV
   createdAt:     Date;
   updatedAt:     Date;
 }

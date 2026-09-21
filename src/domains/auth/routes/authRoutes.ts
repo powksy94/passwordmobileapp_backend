@@ -5,7 +5,7 @@ import { rateLimit } from "../../../shared/middleware/rateLimit.middleware";
 
 const router = Router();
 
-// Anti-bruteforce : 10 tentatives / 15 min par IP+email
+// Anti-bruteforce: 10 attempts / 15 min per IP + email
 const loginRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 10,

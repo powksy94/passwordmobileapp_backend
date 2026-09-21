@@ -23,12 +23,12 @@ const starServer = async () => {
         salt TEXT
       )
     `);
-    // Migration : ajout de la colonne fcm_token si absente
+    // Migration: adding the fcm_token column if missing
     await pool.query(`
       ALTER TABLE users ADD COLUMN IF NOT EXISTS fcm_token TEXT
     `);
 
-    // Migration : suppression des doublons email (garde le compte admin/team_admin)
+    // Migration: removing duplicate emails (keeps the admin/team_admin account)
     await pool.query(`
       DELETE FROM users WHERE id IN (
         SELECT id FROM (
@@ -43,7 +43,7 @@ const starServer = async () => {
       )
     `);
 
-    // Migration : ajout de la contrainte UNIQUE sur email si absente
+    // Migration: adding the UNIQUE constraint on email if missing
     await pool.query(`
       DO $$ BEGIN
         IF NOT EXISTS (
@@ -77,7 +77,7 @@ const starServer = async () => {
     `);
     logger.info("✅ Audit table ready");
 
-    // Migration : promotion automatique de l'ADMIN_EMAIL en admin
+    // Migration: automatic promotion of ADMIN_EMAIL to admin
     const adminEmail = process.env.ADMIN_EMAIL;
     if (adminEmail) {
       const result = await pool.query(
@@ -85,28 +85,28 @@ const starServer = async () => {
         [adminEmail]
       );
       if (result.rowCount && result.rowCount > 0) {
-        logger.info(`✅ Compte ${adminEmail} promu admin`);
+        logger.info(`✅ Account ${adminEmail} promoted to admin`);
       }
 
-      // Migration : si l'admin vient d'être recréé avec un nouvel UUID,
-      // réattache l'ancien vault config orphelin pour préserver les données.
+      // Migration: if the admin was just recreated with a new UUID,
+      // reattaches the old orphan vault config to preserve the data.
       const adminUser = await pool.query(
         `SELECT id FROM users WHERE email = $1`, [adminEmail]
       );
       if (adminUser.rows.length > 0) {
         const newId = adminUser.rows[0].id;
-        // Cherche les vault configs orphelines (sans utilisateur correspondant)
+        // Looks for orphan vault configs (without a matching user)
         const orphans = await pool.query(
           `SELECT admin_id FROM admin_vault_config
            WHERE admin_id NOT IN (SELECT id FROM users)`
         );
         if (orphans.rows.length > 1) {
-          // Plusieurs orphelins : impossible de savoir lequel appartient à
-          // l'admin actuel sans risquer de rattacher/écraser la mauvaise clé.
-          // On ne touche à rien et on demande une intervention manuelle.
+          // Several orphans: impossible to know which one belongs to
+          // the current admin without risking attaching/overwriting the wrong key.
+          // We touch nothing and ask for manual intervention.
           logger.warn(
-            `⚠️ Plusieurs vault configs orphelines détectées (${orphans.rows.length}) — ` +
-            `réattachement automatique désactivé, intervention manuelle requise`,
+            `⚠️ Several orphan vault configs detected (${orphans.rows.length}) - ` +
+            `automatic reattachment disabled, manual intervention required`,
             { orphanIds: orphans.rows.map((r) => r.admin_id) }
           );
         } else if (orphans.rows.length === 1) {
@@ -115,21 +115,21 @@ const starServer = async () => {
             `SELECT 1 FROM admin_vault_config WHERE admin_id = $1`, [newId]
           );
           if (hasConfig.rows.length === 0) {
-            // Nouveau compte sans config : réattache l'orphelin
+            // New account without a config: reattaches the orphan
             await pool.query(
               `UPDATE admin_vault_config SET admin_id = $1 WHERE admin_id = $2`,
               [newId, oldId]
             );
             await AdminVaultModel.updateMany({ adminId: oldId }, { adminId: newId });
-            logger.info(`✅ Vault config + items MongoDB réattachés (${oldId} → ${newId})`);
+            logger.info(`✅ Vault config + MongoDB items reattached (${oldId} -> ${newId})`);
           } else {
-            // Nouveau compte a déjà sa propre config : ne jamais supprimer la
-            // clé orpheline (les items MongoDB associés deviendraient
-            // définitivement indéchiffrables). On journalise pour une
-            // décision manuelle (fusion/export/suppression volontaire).
+            // New account already has its own config: never delete the
+            // orphan key (the associated MongoDB items would become
+            // permanently undecryptable). We log it for a
+            // manual decision (merge/export/deliberate deletion).
             logger.warn(
-              `⚠️ Vault config orpheline (${oldId}) coexiste avec la config actuelle (${newId}) — ` +
-              `conservée telle quelle, aucune suppression automatique`
+              `⚠️ Orphan vault config (${oldId}) coexists with the current config (${newId}) - ` +
+              `kept as is, no automatic deletion`
             );
           }
         }
@@ -142,8 +142,8 @@ const starServer = async () => {
   } catch (err) {
     console.error("BOOTSTRAP ERROR:", err);
     logger.error("Server bootstrap failed: " + JSON.stringify(err, Object.getOwnPropertyNames(err as object)));
-    // Ne jamais laisser le process tourner sans avoir démarré le serveur :
-    // l'orchestrateur (Docker/K8s) doit voir le conteneur comme mort et le redémarrer.
+    // Never leave the process running without having started the server:
+    // the orchestrator (Docker/K8s) must see the container as dead and restart it.
     process.exit(1);
   }
 };

@@ -17,15 +17,15 @@ async function setAdmin() {
   );
 
   if (res.rowCount === 0) {
-    console.error(`Aucun utilisateur trouvé avec l'email : ${email}`);
+    console.error(`No user found with email: ${email}`);
     process.exit(1);
   }
 
-  console.log(`✅ ${email} est maintenant admin.`);
+  console.log(`✅ ${email} is now an admin.`);
   await pool.end();
 }
 
 setAdmin().catch((err) => {
-  console.error("Erreur :", err);
+  console.error("Error:", err);
   process.exit(1);
 });

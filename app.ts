@@ -25,7 +25,7 @@ app.use("/generator", generatorRoutes);
 app.use("/team",       teamAdminRoutes);
 app.use("/admin-auth", adminAuthRoutes);
 
-// middleware d'erreurs EN DERNIER
+// error middleware LAST
 app.use(errorMiddleware);
 
 export default app;

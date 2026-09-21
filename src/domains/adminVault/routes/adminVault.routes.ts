@@ -7,7 +7,7 @@ import * as vaultCtrl from '../controller/adminVaultController.js';
 const router = Router();
 
 // ── Vault admin ───────────────────────────────────────────────────────────────
-// Auth biométrique (push FCM)
+// Biometric auth (FCM push)
 router.post('/vault/auth',                authMiddleware, roleMiddleware('admin'), vaultAuthCtrl.requestVaultAuth);
 router.post('/vault/auth/respond',        authMiddleware,                         vaultAuthCtrl.respondVaultAuth);
 router.get('/vault/auth/:sessionId',      authMiddleware, roleMiddleware('admin'), vaultAuthCtrl.checkVaultAuthStatus);

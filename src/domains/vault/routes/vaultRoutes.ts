@@ -8,7 +8,7 @@ const router = Router();
 router.use(authMiddleware);
 router.post("/",    authMiddleware, addVaultItem);
 router.get("/",     authMiddleware, getVault);
-// Doit être déclarée avant "/:id" pour ne pas être interprétée comme un id.
+// Must be declared before "/:id" so it is not interpreted as an id.
 router.put("/reencrypt-all", authMiddleware, reencryptVault);
 router.delete("/all",        authMiddleware, purgeVault);
 router.put("/:id",  authMiddleware, updateVaultItem);

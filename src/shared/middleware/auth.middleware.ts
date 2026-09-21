@@ -16,8 +16,8 @@ export const authMiddleware = (
   res: Response, 
   next: NextFunction
 ) => {
-  // `code` permet au client de distinguer un token invalide/expiré (=> se
-  // reconnecter) des autres 401 métier (ex. mauvais mot de passe actuel).
+  // `code` lets the client tell an invalid/expired token (=> log in
+  // again) apart from other business 401s (e.g. wrong current password).
   const authHeader = req.headers.authorization;
   if (!authHeader)
     return res.status(401).json({ error: "Authorization header missing", code: TOKEN_INVALID_CODE });

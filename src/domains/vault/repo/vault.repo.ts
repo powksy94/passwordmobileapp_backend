@@ -48,14 +48,14 @@ export const deleteVaultItem = async (id: string): Promise<void> => {
   await VaultModel.findByIdAndDelete(id).exec();
 };
 
-// DELETE ALL (reset coffre)
+// DELETE ALL (vault reset)
 export const deleteAllVaultItemsByUser = async (userId: string): Promise<void> => {
   await VaultModel.deleteMany({ userId }).exec();
 };
 
-// BULK RE-ENCRYPT (changement du mot de passe maître) — transaction tout-ou-rien :
-// si un seul item échoue (introuvable, appartenant à un autre utilisateur, etc.),
-// MongoDB annule automatiquement toutes les écritures déjà effectuées dans la session.
+// BULK RE-ENCRYPT (master password change) - all-or-nothing transaction:
+// if a single item fails (not found, belonging to another user, etc.),
+// MongoDB automatically rolls back all the writes already made in the session.
 export const reencryptVaultItems = async (
   userId: string,
   items: ReencryptItem[]
@@ -89,8 +89,8 @@ export const reencryptVaultItems = async (
   }
 };
 
-// STRENGTH STATS (panel admin) — agrégation de comptage par catégorie,
-// sans jamais lire ni déchiffrer le contenu des items.
+// STRENGTH STATS (admin panel) - count aggregation per category,
+// without ever reading or decrypting the content of the items.
 export interface VaultStrengthStats {
   total: number;
   strong: number;
@@ -100,8 +100,8 @@ export interface VaultStrengthStats {
 }
 
 export const getVaultStrengthStats = async (userId: string): Promise<VaultStrengthStats> => {
-  // Exclut les PINs : ils ont leur propre catégorie de robustesse (pin_strength),
-  // pas comparable à celle des mots de passe.
+  // Excludes PINs: they have their own strength category (pin_strength),
+  // not comparable to that of the passwords.
   const results = await VaultModel.aggregate([
     { $match: { userId, type: { $ne: 'pin' } } },
     { $group: { _id: '$strength', count: { $sum: 1 } } },

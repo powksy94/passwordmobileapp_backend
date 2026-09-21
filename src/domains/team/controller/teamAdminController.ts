@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { pool } from "../../../shared/config/postgres";
 import logger from "../../../shared/config/logger";
 
-// Ajout d'un membre avec rôle "user"
+// Adding a member with the "user" role
 export const addMember = async (req: Request, res: Response) => {
   try {
     const { email } = req.body;

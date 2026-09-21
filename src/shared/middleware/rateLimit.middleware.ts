@@ -5,15 +5,15 @@ interface Bucket {
   windowStart: number;
 }
 
-// Limiteur en mémoire (fenêtre glissante simplifiée). Suffisant pour une
-// seule instance ; à remplacer par un store partagé (Redis) si le backend
-// est un jour répliqué horizontalement.
+// In-memory limiter (simplified sliding window). Sufficient for a
+// single instance; to be replaced by a shared store (Redis) if the backend
+// is ever replicated horizontally.
 export const rateLimit = (options: { windowMs: number; max: number; keyFn?: (req: Request) => string }) => {
   const { windowMs, max, keyFn } = options;
   const buckets = new Map<string, Bucket>();
 
-  // Purge les fenêtres expirées pour que la Map ne grossisse pas indéfiniment
-  // (une entrée par couple ip:email vu). unref() : ne retient pas le process.
+  // Purges expired windows so the Map does not grow indefinitely
+  // (one entry per ip:email pair seen). unref(): does not keep the process alive.
   setInterval(() => {
     const now = Date.now();
     for (const [key, bucket] of buckets) {

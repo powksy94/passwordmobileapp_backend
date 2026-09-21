@@ -5,7 +5,7 @@ export const auditMiddleware = async (req: Request, res: Response, next: NextFun
   res.on("finish", () => {
     if (req.user) {
       AuditRepo.logAction(req.user.id, `${req.method} ${req.originalUrl} - ${res.statusCode}`)
-        .catch(() => { /* l'audit ne doit jamais faire échouer la requête déjà terminée */ });
+        .catch(() => { /* auditing must never make an already completed request fail */ });
     }
   });
   next();

@@ -10,7 +10,7 @@ import logger from "../../../shared/config/logger";
 export const getAllUsers = async (_req: Request, res: Response) => {
   try {
     const users = await UsersRepo.getAllUsers();
-    // Ne jamais renvoyer le hash bcrypt ni le salt, même au panel admin.
+    // Never return the bcrypt hash or the salt, even to the admin panel.
     const safeUsers = users.map(({ id, email, role }) => ({ id, email, role }));
     res.json(safeUsers);
   } catch (err) {
@@ -32,7 +32,7 @@ export const deleteUser = async (req: Request, res: Response) => {
 
     await VaultRepo.deleteAllVaultItemsByUser(id);
     await UsersRepo.deleteUser(id);
-    // L'audit ne doit jamais transformer une action déjà effectuée en échec côté client.
+    // Auditing must never turn an already performed action into a failure on the client side.
     await AuditRepo.logAction(req.user.id, `Deleted user ${id}`).catch((auditErr) =>
       logger.error("Audit log failed for deleteUser", { error: auditErr })
     );

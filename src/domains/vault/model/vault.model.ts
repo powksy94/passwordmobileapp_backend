@@ -22,7 +22,7 @@ const VaultSchema = new Schema<IVault>(
     type: { type: String, enum: ['password', 'pin'], default: 'password' },
     title: { type: String, required: true },
     login: { type: String, default: ""},
-    // Non requis : un item de type 'pin' ne renseigne pas ce champ (il utilise `pin` à la place).
+    // Not required: an item of type 'pin' does not fill this field (it uses `pin` instead).
     password: { type: String, default: ""},
     notes: { type: String, default: ""},
     icon: { type: String, default: "lock"},

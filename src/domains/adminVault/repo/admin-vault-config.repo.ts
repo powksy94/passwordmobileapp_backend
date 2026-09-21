@@ -3,11 +3,11 @@ import crypto from 'crypto';
 
 interface AdminVaultConfig {
   admin_id:  string;
-  vault_key: string; // base64 AES-256 (32 bytes) — généré une fois
-  vault_salt: string; // base64 (32 bytes) — généré une fois
+  vault_key: string; // base64 AES-256 (32 bytes), generated once
+  vault_salt: string; // base64 (32 bytes), generated once
 }
 
-/** Récupère ou crée la config vault de l'admin (vault_key + salt). */
+/** Gets or creates the admin's vault config (vault_key + salt). */
 export const getOrCreateConfig = async (adminId: string): Promise<AdminVaultConfig> => {
   const existing = await pool.query<AdminVaultConfig>(
     'SELECT * FROM admin_vault_config WHERE admin_id = $1',
@@ -15,7 +15,7 @@ export const getOrCreateConfig = async (adminId: string): Promise<AdminVaultConf
   );
   if (existing.rows[0]) return existing.rows[0];
 
-  // Première fois : génère clé + salt
+  // First time: generates key + salt
   const vault_key  = crypto.randomBytes(32).toString('base64');
   const vault_salt = crypto.randomBytes(32).toString('base64');
 

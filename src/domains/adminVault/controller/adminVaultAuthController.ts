@@ -5,13 +5,13 @@ import * as UsersRepo from '../../../shared/db/postgres/users.repo.js';
 import firebaseAdmin from '../../../shared/config/firebase-admin.js';
 import logger from '../../../shared/config/logger.js';
 
-// ── Sessions vault en mémoire (TTL 5 min) ─────────────────────────────────────
+// ── In-memory vault sessions (5 min TTL) ─────────────────────────────────────
 
 interface VaultSession {
   adminUserId: string;
   createdAt:   Date;
   status:      'pending' | 'approved' | 'denied';
-  vaultKey?:   string; // rempli lors de l'approbation depuis l'app Flutter
+  vaultKey?:   string; // filled in on approval from the Flutter app
 }
 
 const vaultSessions = new Map<string, VaultSession>();
@@ -24,7 +24,7 @@ setInterval(() => {
 }, 60_000);
 
 // ── 1. POST /admin/vault/auth ─────────────────────────────────────────────────
-// Déclenche une push FCM sur le téléphone admin → retourne { sessionId }
+// Triggers an FCM push on the admin's phone -> returns { sessionId }
 
 export const requestVaultAuth = async (req: Request, res: Response): Promise<void> => {
   if (!req.user) { res.status(401).json({ error: 'Unauthorized' }); return; }
@@ -58,7 +58,7 @@ export const requestVaultAuth = async (req: Request, res: Response): Promise<voi
 };
 
 // ── 2. GET /admin/vault/auth/:sessionId ──────────────────────────────────────
-// Polling depuis le panel React → retourne { status, vaultKey? }
+// Polling from the React panel -> returns { status, vaultKey? }
 
 export const checkVaultAuthStatus = async (req: Request, res: Response): Promise<void> => {
   if (!req.user) { res.status(401).json({ error: 'Unauthorized' }); return; }
@@ -93,7 +93,7 @@ export const checkVaultAuthStatus = async (req: Request, res: Response): Promise
 };
 
 // ── 2b. POST /admin/vault/auth/respond ──────────────────────────────────────
-// Appelé par l'app Flutter après approbation biométrique
+// Called by the Flutter app after biometric approval
 
 export const respondVaultAuth = async (req: Request, res: Response): Promise<void> => {
   if (!req.user) { res.status(401).json({ error: 'Unauthorized' }); return; }
@@ -110,11 +110,11 @@ export const respondVaultAuth = async (req: Request, res: Response): Promise<voi
     return;
   }
 
-  // Récupère (ou génère) la vault key depuis la DB
+  // Gets (or generates) the vault key from the DB
   const config = await AdminVaultConfigRepo.getOrCreateConfig(req.user.id);
   session.status   = 'approved';
   session.vaultKey = config.vault_key;
 
-  logger.info('Vault admin approuvé', { adminId: req.user.id, sessionId });
+  logger.info('Vault admin approved', { adminId: req.user.id, sessionId });
   res.status(200).json({ message: 'Approuvé' });
 };

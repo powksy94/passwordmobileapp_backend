@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import * as UsersRepo from "../../../shared/db/postgres/users.repo";
 import * as VaultRepo from "../../vault/repo/vault.repo.js";
-import bcrypt from "bcrypt"; // ✅ correction
+import bcrypt from "bcrypt"; // ✅ fix
 import jwt from "jsonwebtoken";
 import { JWT_SECRET, JWT_EXPIRES_IN } from "../../../shared/config/env";
 import type { SignOptions } from "jsonwebtoken";
@@ -20,7 +20,7 @@ export const login = async (
     try {
       const { email, password } = req.body;
 
-      // Vérification du body
+      // Body validation
       if (!email || !password) {
         res.status(400).json({ error: "Email and password are required" });
         return;

@@ -7,7 +7,7 @@ import firebaseAdmin from '../../../shared/config/firebase-admin.js';
 import { JWT_SECRET, JWT_EXPIRES_IN } from '../../../shared/config/env.js';
 import logger from '../../../shared/config/logger.js';
 
-// ── Sessions en mémoire (TTL 5 min, nettoyage auto) ──────────────────────────
+// ── In-memory sessions (5 min TTL, automatic cleanup) ──────────────────────────
 
 interface AdminSession {
   userId:    string;
@@ -17,7 +17,7 @@ interface AdminSession {
 
 const sessions = new Map<string, AdminSession>();
 
-// Nettoyage des sessions expirées toutes les minutes
+// Cleanup of the expired sessions every minute
 setInterval(() => {
   const limit = Date.now() - 5 * 60 * 1000;
   for (const [id, s] of sessions) {
@@ -25,7 +25,7 @@ setInterval(() => {
   }
 }, 60_000);
 
-// ── Initiation de la demande (appelée depuis le panel React) ──────────────────
+// ── Request initiation (called from the React panel) ──────────────────
 
 export const requestAdminAuth = async (req: Request, res: Response): Promise<void> => {
   const { email } = req.body as { email?: string };
@@ -36,7 +36,7 @@ export const requestAdminAuth = async (req: Request, res: Response): Promise<voi
 
   const user = await UsersRepo.getUserByEmail(email);
 
-  // Réponse générique pour éviter l'énumération d'utilisateurs
+  // Generic response to avoid user enumeration
   if (!user || user.role !== 'admin') {
     res.status(200).json({ sessionId: crypto.randomUUID() });
     return;
@@ -49,12 +49,12 @@ export const requestAdminAuth = async (req: Request, res: Response): Promise<voi
     status:    'pending',
   });
 
-  // Envoi de la push notification FCM
+  // Sending the FCM push notification
   const fcmToken = await UsersRepo.getFcmToken(user.id);
   const requestIp = req.ip ?? 'IP inconnue';
 
   if (!fcmToken) {
-    logger.warn('FCM token absent pour cet utilisateur', { userId: user.id });
+    logger.warn('FCM token missing for this user', { userId: user.id });
   } else {
     try {
       await firebaseAdmin.messaging().send({
@@ -74,16 +74,16 @@ export const requestAdminAuth = async (req: Request, res: Response): Promise<voi
           notification: { channelId: 'admin_auth' },
         },
       });
-      logger.info('Push notification envoyée', { userId: user.id, sessionId });
+      logger.info('Push notification sent', { userId: user.id, sessionId });
     } catch (err) {
-      logger.error('Échec envoi FCM:', err);
+      logger.error('FCM send failed:', err);
     }
   }
 
   res.status(200).json({ sessionId });
 };
 
-// ── Réponse depuis l'app Flutter (approuver ou refuser) ───────────────────────
+// ── Response from the Flutter app (approve or deny) ───────────────────────
 
 export const respondAdminAuth = async (req: Request, res: Response): Promise<void> => {
   if (!req.user) {
@@ -105,11 +105,11 @@ export const respondAdminAuth = async (req: Request, res: Response): Promise<voi
   }
 
   session.status = approved ? 'approved' : 'denied';
-  logger.info(`Session admin ${approved ? 'approuvée' : 'refusée'}`, { sessionId });
+  logger.info(`Admin session ${approved ? 'approved' : 'denied'}`, { sessionId });
   res.status(200).json({ message: 'Réponse enregistrée' });
 };
 
-// ── Polling depuis le panel React ─────────────────────────────────────────────
+// ── Polling from the React panel ─────────────────────────────────────────────
 
 export const checkAdminAuthStatus = async (req: Request, res: Response): Promise<void> => {
   const { sessionId } = req.params;
