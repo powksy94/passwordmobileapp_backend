@@ -18,5 +18,9 @@ export const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN ?? "30d";
 
 export const CRYPTO_MASTER_KEY        = process.env.CRYPTO_MASTER_KEY        ?? "";
 export const CORS_ORIGIN              = process.env.CORS_ORIGIN              ?? "*";
+
+// Nombre de proxys inverses devant l'app (Railway = 1). Sans cela `req.ip` est
+// l'IP du proxy pour tous les clients et le rate limit ne distingue plus personne.
+export const TRUST_PROXY_HOPS = Number(process.env.TRUST_PROXY_HOPS ?? 1);
 export const FIREBASE_SERVICE_ACCOUNT = process.env.FIREBASE_SERVICE_ACCOUNT ?? "{}";
 

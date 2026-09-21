@@ -12,6 +12,15 @@ export const rateLimit = (options: { windowMs: number; max: number; keyFn?: (req
   const { windowMs, max, keyFn } = options;
   const buckets = new Map<string, Bucket>();
 
+  // Purge les fenêtres expirées pour que la Map ne grossisse pas indéfiniment
+  // (une entrée par couple ip:email vu). unref() : ne retient pas le process.
+  setInterval(() => {
+    const now = Date.now();
+    for (const [key, bucket] of buckets) {
+      if (now - bucket.windowStart > windowMs) buckets.delete(key);
+    }
+  }, windowMs).unref();
+
   return (req: Request, res: Response, next: NextFunction) => {
     const key = keyFn ? keyFn(req) : req.ip ?? "unknown";
     const now = Date.now();

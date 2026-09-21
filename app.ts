@@ -8,9 +8,11 @@ import generatorRoutes from "./src/domains/generator/routes/generatorRoutes"
 import teamAdminRoutes from "./src/domains/team/routes/teamAdminRoutes"
 import adminAuthRoutes from "./src/domains/adminAuth/routes/adminAuthRoutes"
 import cors from "cors"
-import { CORS_ORIGIN } from "./src/shared/config/env";
+import { CORS_ORIGIN, TRUST_PROXY_HOPS } from "./src/shared/config/env";
 
 const app = express();
+
+app.set("trust proxy", TRUST_PROXY_HOPS);
 
 app.use(express.json());
 app.use(cors({ origin: CORS_ORIGIN }))
