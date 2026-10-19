@@ -16,6 +16,13 @@ export const MONGO_URI = process.env.MONGO_URI ?? "";
 export const JWT_SECRET = process.env.JWT_SECRET ?? "";
 export const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN ?? "30d";
 
+// Mobile app sessions: short-lived access token, silently renewed with a
+// rotating refresh token (see upgrade/REFRESH_TOKEN_SESSIONS.md). The
+// sliding TTL is pushed back on every refresh, so an app in regular use
+// never has to log in again.
+export const ACCESS_TOKEN_EXPIRES_IN = process.env.ACCESS_TOKEN_EXPIRES_IN ?? "1h";
+export const REFRESH_TOKEN_TTL_DAYS  = Number(process.env.REFRESH_TOKEN_TTL_DAYS ?? 60);
+
 export const CRYPTO_MASTER_KEY        = process.env.CRYPTO_MASTER_KEY        ?? "";
 export const CORS_ORIGIN              = process.env.CORS_ORIGIN              ?? "*";
 

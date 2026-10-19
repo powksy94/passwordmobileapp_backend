@@ -2,10 +2,8 @@ import type { Request, Response } from "express";
 import * as UsersRepo from "../../../shared/db/postgres/users.repo";
 import * as VaultRepo from "../../vault/repo/vault.repo.js";
 import bcrypt from "bcrypt"; // ✅ fix
-import jwt from "jsonwebtoken";
-import { JWT_SECRET, JWT_EXPIRES_IN } from "../../../shared/config/env";
-import type { SignOptions } from "jsonwebtoken";
 import logger from "../../../shared/config/logger";
+import * as SessionService from "../services/session.service.js";
 import { isValidAccountPassword, PASSWORD_POLICY_ERROR } from "../../../shared/utils/passwordPolicy";
 
 interface AuthRequestBody {
@@ -38,21 +36,9 @@ export const login = async (
         return;
       }
 
-      if (!JWT_SECRET) {
-        throw new Error("JWT_SECRET not defined");
-      }
+      const session = await SessionService.createSession(user);
 
-      const signOptions: SignOptions = {
-        expiresIn: JWT_EXPIRES_IN as SignOptions["expiresIn"],
-      };
-
-      const token = jwt.sign(
-        { id: user.id, role: user.role },
-        JWT_SECRET,
-        signOptions
-      );
-
-      res.status(200).json({ token, role: user.role, salt: user.salt });
+      res.status(200).json({ ...session, salt: user.salt });
     } catch (error) {
       logger.error("Login error:", error);
       res.status(500).json({ error: "Internal server error" });
@@ -147,8 +133,12 @@ export const changePassword = async (
     const hashed = await bcrypt.hash(newPassword, 12);
     await UsersRepo.updateUserPassword(req.user.id, hashed);
 
+    // Logs out every other device; this one gets a fresh session.
+    await SessionService.revokeAllSessions(req.user.id);
+    const session = await SessionService.createSession(user);
+
     logger.info("Password changed", { userId: req.user.id });
-    res.status(200).json({ message: "Password updated" });
+    res.status(200).json({ message: "Password updated", ...session });
   } catch (error) {
     logger.error("Change password error:", error);
     res.status(500).json({ error: "Internal server error" });

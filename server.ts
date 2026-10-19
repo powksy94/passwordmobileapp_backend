@@ -5,6 +5,8 @@ import { NODE_ENV, PORT } from "./src/shared/config/env";
 import logger from "./src/shared/config/logger";
 import { AdminVaultModel } from "./src/domains/adminVault/model/admin-vault.model";
 import { startWeakItemReminderJob } from "./src/domains/vault/jobs/weakItemReminderJob";
+import { migrateRefreshTokens } from "./src/domains/auth/repo/refreshTokens.migration";
+import { startRefreshTokenCleanupJob } from "./src/domains/auth/jobs/refreshTokenCleanupJob";
 
 const starServer = async () => {
   try {
@@ -76,6 +78,9 @@ const starServer = async () => {
     `);
 
     logger.info("✅ Users table ready");
+
+    await migrateRefreshTokens();
+    logger.info("✅ Refresh tokens table ready");
 
     await pool.query(`
       CREATE TABLE IF NOT EXISTS admin_vault_config (
@@ -157,6 +162,7 @@ const starServer = async () => {
     }
 
     startWeakItemReminderJob();
+    startRefreshTokenCleanupJob();
 
     app.listen(PORT, () => {
       logger.info(`Server running on port ${PORT} in ${NODE_ENV} mode`);
