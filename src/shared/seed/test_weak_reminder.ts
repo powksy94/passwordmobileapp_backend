@@ -73,7 +73,8 @@ async function testWeakReminder() {
 
 testWeakReminder()
   .catch((err) => {
-    console.error("Error:", err instanceof Error ? err.message : err);
+    // Connection failures (e.g. pg AggregateError) can have an empty message.
+    console.error("Error:", err instanceof Error && err.message ? err.message : err);
     process.exitCode = 1;
   })
   .finally(async () => {
