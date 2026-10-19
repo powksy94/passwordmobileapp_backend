@@ -2,7 +2,11 @@ import { Request, Response } from "express";
 import * as VaultRepo from "../repo/vault.repo.js";
 import { validatePasswordItem } from "../validation/password.validation.js";
 import { validatePinItem } from "../validation/pin.validation.js";
+import { computeWeakTracking, defaultWeakTrackingState, type StrengthCategory } from "../weakTracking.logic.js";
 import logger from "../../../shared/config/logger";
+
+const strengthOf = (item: { type: string; strength?: StrengthCategory; pin_strength?: StrengthCategory }): StrengthCategory =>
+  item.type === 'pin' ? item.pin_strength : item.strength;
 
 // ---------------------
 // ADD VAULT ITEM
@@ -23,9 +27,12 @@ export const addVaultItem = async (req: Request, res: Response): Promise<void> =
   }
 
   try {
+    const tracking = computeWeakTracking(undefined, strengthOf(result.item), defaultWeakTrackingState);
+
     const vaultItem = await VaultRepo.createVault({
       userId: req.user.id,
       ...result.item,
+      ...tracking,
     });
 
     res.status(201).json({
@@ -102,7 +109,12 @@ export const updateVaultItem = async (req: Request, res: Response): Promise<void
       return;
     }
 
-    await VaultRepo.updateVaultItem(id, result.item);
+    const tracking = computeWeakTracking(strengthOf(item), strengthOf(result.item), {
+      weakSince: item.weakSince ?? null,
+      weakReminderStage: item.weakReminderStage ?? 0,
+    });
+
+    await VaultRepo.updateVaultItem(id, { ...result.item, ...tracking });
 
     logger.info("Vault item updated", { userId: req.user.id, vaultId: id });
     res.status(200).json({ message: "Item updated" });

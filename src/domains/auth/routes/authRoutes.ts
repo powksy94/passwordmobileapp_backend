@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { register, login, updateFcmToken, changePassword, deleteAccount } from "../controller/authController";
+import { getWeakReminderSettings, updateWeakReminderSettings } from "../controller/weakReminderSettingsController";
 import { authMiddleware } from "../../../shared/middleware/auth.middleware";
 import { rateLimit } from "../../../shared/middleware/rateLimit.middleware";
 
@@ -17,5 +18,7 @@ router.post("/login",    loginRateLimit, login);
 router.post("/fcm-token",       authMiddleware, updateFcmToken);
 router.post("/change-password", authMiddleware, changePassword);
 router.delete("/account",       authMiddleware, deleteAccount);
+router.get("/weak-reminder-settings", authMiddleware, getWeakReminderSettings);
+router.put("/weak-reminder-settings", authMiddleware, updateWeakReminderSettings);
 
 export default router;

@@ -12,6 +12,11 @@ export interface IVault extends Document {
   strength?: 'weak' | 'medium' | 'strong';
   pin: string;
   pin_strength?: 'weak' | 'medium' | 'strong';
+  // Weak/medium reminder episode tracking (see upgrade/WEAK_ITEM_PUSH_REMINDERS.md):
+  // set as soon as strength/pin_strength is 'weak' or 'medium', independently of
+  // any user's reminder preferences, which only apply when the job reads this.
+  weakSince?: Date | null;
+  weakReminderStage?: 0 | 1 | 2 | 3;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -30,6 +35,8 @@ const VaultSchema = new Schema<IVault>(
     strength: { type: String, enum: ['weak', 'medium', 'strong'], required: false },
     pin: { type: String, default: "" },
     pin_strength: { type: String, enum: ['weak', 'medium', 'strong'], required: false },
+    weakSince: { type: Date, default: null },
+    weakReminderStage: { type: Number, enum: [0, 1, 2, 3], default: 0 },
   },
   {
     timestamps: true, 

@@ -52,8 +52,16 @@ export const updateUserPassword = async (id: string, hashedPassword: string): Pr
   await pool.query("UPDATE users SET password = $1 WHERE id = $2", [hashedPassword, id]);
 };
 
-export const updateFcmToken = async (id: string, fcmToken: string): Promise<void> => {
-  await pool.query("UPDATE users SET fcm_token = $1 WHERE id = $2", [fcmToken, id]);
+export const updateFcmToken = async (
+  id: string,
+  fcmToken: string,
+  locale?: 'en' | 'fr' | 'es'
+): Promise<void> => {
+  if (locale) {
+    await pool.query("UPDATE users SET fcm_token = $1, locale = $2 WHERE id = $3", [fcmToken, locale, id]);
+  } else {
+    await pool.query("UPDATE users SET fcm_token = $1 WHERE id = $2", [fcmToken, id]);
+  }
 };
 
 export const getFcmToken = async (id: string): Promise<string | null> => {
@@ -62,4 +70,38 @@ export const getFcmToken = async (id: string): Promise<string | null> => {
     [id]
   );
   return res.rows[0]?.fcm_token ?? null;
+};
+
+export interface WeakReminderSettings {
+  enabled: boolean;
+  includeMedium: boolean;
+  delaysHours: number[];
+}
+
+export const getWeakReminderSettings = async (id: string): Promise<WeakReminderSettings | null> => {
+  const res = await pool.query<{
+    weak_reminders_enabled: boolean;
+    weak_reminders_include_medium: boolean;
+    weak_reminder_delays_hours: number[];
+  }>(
+    "SELECT weak_reminders_enabled, weak_reminders_include_medium, weak_reminder_delays_hours FROM users WHERE id = $1",
+    [id]
+  );
+  const row = res.rows[0];
+  if (!row) return null;
+  return {
+    enabled: row.weak_reminders_enabled,
+    includeMedium: row.weak_reminders_include_medium,
+    delaysHours: row.weak_reminder_delays_hours,
+  };
+};
+
+export const updateWeakReminderSettings = async (
+  id: string,
+  settings: WeakReminderSettings
+): Promise<void> => {
+  await pool.query(
+    "UPDATE users SET weak_reminders_enabled = $1, weak_reminders_include_medium = $2, weak_reminder_delays_hours = $3 WHERE id = $4",
+    [settings.enabled, settings.includeMedium, settings.delaysHours, id]
+  );
 };

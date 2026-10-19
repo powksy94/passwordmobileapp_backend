@@ -4,6 +4,7 @@ import { pool } from "./src/shared/config/postgres";
 import { NODE_ENV, PORT } from "./src/shared/config/env";
 import logger from "./src/shared/config/logger";
 import { AdminVaultModel } from "./src/domains/adminVault/model/admin-vault.model";
+import { startWeakItemReminderJob } from "./src/domains/vault/jobs/weakItemReminderJob";
 
 const starServer = async () => {
   try {
@@ -26,6 +27,25 @@ const starServer = async () => {
     // Migration: adding the fcm_token column if missing
     await pool.query(`
       ALTER TABLE users ADD COLUMN IF NOT EXISTS fcm_token TEXT
+    `);
+    // Migration: the app's current locale (one of its supportedLocales -
+    // en/fr/es, see main.dart), sent alongside the FCM token so server-sent
+    // push text can match the app's own localization instead of being
+    // hardcoded in a single language.
+    await pool.query(`
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS locale TEXT NOT NULL DEFAULT 'en'
+    `);
+
+    // Migration: weak/medium item push reminder settings (see
+    // upgrade/WEAK_ITEM_PUSH_REMINDERS.md)
+    await pool.query(`
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS weak_reminders_enabled BOOLEAN NOT NULL DEFAULT true
+    `);
+    await pool.query(`
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS weak_reminders_include_medium BOOLEAN NOT NULL DEFAULT true
+    `);
+    await pool.query(`
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS weak_reminder_delays_hours INTEGER[] NOT NULL DEFAULT '{4,24,48}'
     `);
 
     // Migration: removing duplicate emails (keeps the admin/team_admin account)
@@ -135,6 +155,8 @@ const starServer = async () => {
         }
       }
     }
+
+    startWeakItemReminderJob();
 
     app.listen(PORT, () => {
       logger.info(`Server running on port ${PORT} in ${NODE_ENV} mode`);

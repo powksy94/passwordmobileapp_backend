@@ -38,7 +38,7 @@ export const getVaultById = async (
 // UPDATE
 export const updateVaultItem = async (
   id: string,
-  data: Partial<Pick<IVault, 'type' | 'title' | 'login' | 'password' | 'notes' | 'icon' | 'url' | 'strength' | 'pin' | 'pin_strength'>>
+  data: Partial<Pick<IVault, 'type' | 'title' | 'login' | 'password' | 'notes' | 'icon' | 'url' | 'strength' | 'pin' | 'pin_strength' | 'weakSince' | 'weakReminderStage'>>
 ): Promise<IVault | null> => {
   return VaultModel.findByIdAndUpdate(id, data, { new: true }).exec();
 };

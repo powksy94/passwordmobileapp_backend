@@ -92,17 +92,22 @@ export const login = async (
     }
   };
 
+const SUPPORTED_LOCALES = ['en', 'fr', 'es'] as const;
+
 export const updateFcmToken = async (req: Request, res: Response): Promise<void> => {
   if (!req.user) {
     res.status(401).json({ error: 'Unauthorized' });
     return;
   }
-  const { fcmToken } = req.body as { fcmToken?: string };
+  const { fcmToken, locale } = req.body as { fcmToken?: string; locale?: string };
   if (!fcmToken) {
     res.status(400).json({ error: 'fcmToken requis' });
     return;
   }
-  await UsersRepo.updateFcmToken(req.user.id, fcmToken);
+  const validLocale = SUPPORTED_LOCALES.includes(locale as typeof SUPPORTED_LOCALES[number])
+    ? (locale as typeof SUPPORTED_LOCALES[number])
+    : undefined;
+  await UsersRepo.updateFcmToken(req.user.id, fcmToken, validLocale);
   res.status(200).json({ message: 'FCM token enregistré' });
 };
 
