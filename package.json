@@ -13,6 +13,7 @@
     "seed": "ts-node src/shared/seed/users.seed.ts",
     "seed-admin": "tsx src/shared/seed/set_admin.ts",
     "test-weak-reminder": "tsx src/shared/seed/test_weak_reminder.ts",
+    "reset-user-password": "tsx src/shared/seed/reset_user_password.ts",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write \"src/**/*.ts\"",
     "test": "jest"
