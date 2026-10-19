@@ -18,8 +18,8 @@ export const startWeakItemReminderJob = (): void => {
   });
 };
 
-export const runWeakItemReminderTick = async (): Promise<void> => {
-  const candidates = await getVaultWeakReminderCandidates();
+export const runWeakItemReminderTick = async (onlyUserId?: string): Promise<void> => {
+  const candidates = await getVaultWeakReminderCandidates(onlyUserId);
   const now = Date.now();
 
   for (const { userId, items } of candidates) {

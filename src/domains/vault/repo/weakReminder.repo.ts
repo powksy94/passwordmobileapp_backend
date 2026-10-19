@@ -15,9 +15,12 @@ export interface WeakReminderCandidate {
   items: WeakReminderCandidateItem[];
 }
 
-export const getVaultWeakReminderCandidates = async (): Promise<WeakReminderCandidate[]> => {
+// `onlyUserId` restricts the scan to a single user (manual test script).
+export const getVaultWeakReminderCandidates = async (
+  onlyUserId?: string
+): Promise<WeakReminderCandidate[]> => {
   const results = await VaultModel.aggregate([
-    { $match: { weakSince: { $ne: null } } },
+    { $match: { weakSince: { $ne: null }, ...(onlyUserId ? { userId: onlyUserId } : {}) } },
     {
       $project: {
         userId: 1,
