@@ -31,3 +31,8 @@ export const CORS_ORIGIN              = process.env.CORS_ORIGIN              ?? 
 export const TRUST_PROXY_HOPS = Number(process.env.TRUST_PROXY_HOPS ?? 1);
 export const FIREBASE_SERVICE_ACCOUNT = process.env.FIREBASE_SERVICE_ACCOUNT ?? "{}";
 
+// Transactional emails (password reset codes) sent through Resend. The
+// sender domain must be verified in Resend (SPF/DKIM DNS records).
+export const RESEND_API_KEY = process.env.RESEND_API_KEY ?? "";
+export const MAIL_FROM      = process.env.MAIL_FROM ?? "Password Mobile App <no-reply@powksy.com>";
+
